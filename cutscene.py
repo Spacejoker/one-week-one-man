@@ -1,20 +1,20 @@
-import pygame
-from pygame.movie import Movie
-import os, sys
+import pygame 
+from pygame.movie import Movie 
+import os, sys 
 import time
+from constants import *
 
-WIDTH = 1280
-HEIGHT = 720
-BGS = os.path.join('images','bg')
-CHARACTERS = os.path.join('images','characters')
+BGS = os.path.join('images','bg') 
+CHARACTERS =os.path.join('images','characters') 
+MISC =os.path.join('images','misc') 
 
 class Cutscene():
 
-	@staticmethod
-	def fade(bg, screen, fade_in=True):
-		FPS = 30
-		fpsClock = pygame.time.Clock()
-		DURATION = 0.5 # seconds
+	@staticmethod 
+	def fade(bg, screen, fade_in=True): 
+		FPS = 30 
+		fpsClock = pygame.time.Clock() 
+		DURATION = 0.5 # seconds 
 		start_time = time.clock()
 		ratio = 0.0 # alpha as a float [0.0 .. 1.0]
 		while ratio < 1.0:
@@ -48,7 +48,7 @@ class Cutscene():
 			imgs.append(pygame.image.load(os.path.join('movies', name, filename)))
 
 		for img in imgs:
-			window.blit(img, (0, 0, WIDTH, HEIGHT))
+			screen.blit(img, (0, 0, WIDTH, HEIGHT))
 			time.sleep(0.01)
 			pygame.display.flip()
 
@@ -148,6 +148,7 @@ class IntroScene():
 			{'command' : 'show_character', 'value': "billy"},
 			{'command' : 'say', 'character' : 'Billy',  'line' : "Hehe whatever."},
 			{'command' : 'say', 'character' : 'Billy',  'line' : "I have a special trick in store for you."},
+
 			{'command' : 'show_character', 'value': "sensei"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Shut up you two. We all know you are the favourites, but only the winner will take the place as my adept."},
 			{'command' : 'fade_out'},
@@ -155,14 +156,14 @@ class IntroScene():
 			{'command' : 'show_character', 'value': "sensei"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Ok this is the test. The fastest runner will win."},
 			{'command' : 'fade_out'},
-			{'command' : "movie",'value' : "jens_loss"},
+#			{'command' : "movie",'value' : "jens_loss"},
 			{'command' : 'set_bg', 'value': "running_tracks"},
 			{'command' : 'show_character', 'value': "sensei"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Congratulations Billy, you will be my new mentee. You can look forward to a life of glory and fame."},
 			{'command' : 'show_character', 'value': "jens"},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "How could I loose. This can't be..."},
 			{'command' : 'fade_out'},
-			{'command' : "movie", 'value' : "old jens"},
+#			{'command' : "movie", 'value' : "old jens"},
 			{'command' : 'set_bg', 'value': "jens_house"},
 			{'command' : 'show_character', 'value': "divel"},
 			{'command' : 'say', 'character' : "Divel", 'line' : "So you are still upset about that race huh?"},
@@ -205,9 +206,15 @@ class IntroScene():
 			{'command' : 'say', 'character' :  "Divel",'line' : "Of course, that will be my pleasure."},
 			{'command' : 'say', 'character' :  "Divel",'line' : "Now let's get to work. You must help me become stronger in order for me to conquer the w... ahem Kill Billy Svensson."}]}
 
+class RunIntro():
+	def __init__(self, model):
+		self.model = model
+		Cutscene.show('intro', pygame.display.get_surface())
+		self.model.new_scene = 'main_menu'
+
 if __name__ == '__main__':
 
 	pygame.init()
-	window = pygame.display.set_mode((WIDTH, HEIGHT)) 
-	Cutscene.show('intro', window)
+	#window = pygame.display.set_mode((WIDTH, HEIGHT)) 
+	#Cutscene.show('intro', window)
 	sys.exit()
