@@ -109,7 +109,6 @@ class Cutscene():
 		cur = ""
 		for i,w in enumerate(words):
 			newlen = len(w)  + len(cur)
-			print newlen
 			if newlen> threshold or i == len(words) -1:
 				last = i == len(words) - 1
 				if last:
@@ -128,9 +127,8 @@ class IntroScene():
 	def __init__(self):
 		self.script = {'steps' : [
 			{'command' : 'set_bg', 'value': "jens_house"},
-			{'command' : 'show_character', 'value': "mum"},
-			{'command' : 'say', 'character' : "Mum", 'line' : "Good luck today Jens, I hope you win. I know how much you want this."},
 			{'command' : 'show_character', 'value': "jens"},
+			{'command' : 'say', 'character' : "Mum", 'line' : "Good luck today Jens, I hope you win. I know how much you want this."},
 			{'command' : 'say', 'character' : "Jens", 'line' : "Thank you mum, I will show all of them that I am the strongest."},
 			{'command' : 'fade_out'},
 			{'command' : 'set_bg', 'value': "old_man"},
@@ -140,7 +138,9 @@ class IntroScene():
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Anyway rookies, let me explain this again to avoid confusion. I will take on mentorship for the most promising of you all. This is a once in a lifetime opportunity."},
 			{'command' : 'show_character', 'value': "jens"},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "Hey Billy, I will beat you this time. I have practiced everyday for a year, you won't stand a chance."},
+			{'command' : 'show_character', 'value': "billy"},
 			{'command' : 'say', 'character' : 'Billy',  'line' : "Hehe whatever."},
+			{'command' : 'say', 'character' : 'Billy',  'line' : "I have a special trick in store for you."},
 			{'command' : 'show_character', 'value': "sensei"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Shut up you two. We all know you are the favourites, but only the winner will take the place as my adept."},
 			{'command' : 'fade_out'},
