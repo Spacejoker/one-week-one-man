@@ -7,7 +7,6 @@ WIDTH = 1280
 HEIGHT = 720
 BGS = os.path.join('images','bg')
 CHARACTERS = os.path.join('images','characters')
-
 class Cutscene():
 
 	@staticmethod
@@ -54,11 +53,11 @@ class Cutscene():
 
 	@staticmethod
 	def show(name, screen):
-		font = pygame.font.SysFont("consolas", 15)	
+		font = pygame.font.SysFont("consolas", 40)
 		scene = None
 		if name == 'intro':
 			scene = IntroScene()
-		if scen == None:
+		if scene == None:
 			return
 		bg = None
 		character_face = None
@@ -68,7 +67,7 @@ class Cutscene():
 
 			if bg != None:
 				screen.blit(bg, (0,0))
-			if character_faec != None:
+			if character_face != None:
 				screen.blit(character_face, (20,20))
 
 			if cmd == 'set_bg':
@@ -85,10 +84,8 @@ class Cutscene():
 				character_face = pygame.image.load(os.path.join(CHARACTERS, event['value'] + '.png'))
 			if cmd == 'say':
 				#write some text
-				
-				label = font.render(event['line'], 1, (255,255,255))
-				screen.blit(label ,(300, 550))
-				
+				Cutscene.print_line(event, screen, font)
+
 			if cmd != 'say':
 				continue
 			#print the stuff and wait for UI
@@ -100,6 +97,33 @@ class Cutscene():
 					if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 						return
 					break
+	@staticmethod
+	def print_line(event, screen, font):
+		tot_string = event['line']
+		y = 500
+		x = 220
+		label = font.render(event['character'] + ":" , 1, (20,0,0))
+		screen.blit(label ,(x-30 - (len(event['character']) + 1) * 20, y))
+		threshold = 40
+		words = tot_string.split(" ")
+		cur = ""
+		for i,w in enumerate(words):
+			newlen = len(w)  + len(cur)
+			print newlen
+			if newlen> threshold or i == len(words) -1:
+				last = i == len(words) - 1
+				if last:
+					cur += w
+				label = font.render(cur , 1, (20,0,0))
+				screen.blit(label ,(x, y))
+				cur = ""
+				y += 45
+				if last:
+					break
+			cur += w + " "
+		label = font.render(cur , 1, (20,0,0))
+		screen.blit(label ,(x, y))
+				
 class IntroScene():
 	def __init__(self):
 		self.script = {'steps' : [
@@ -111,7 +135,9 @@ class IntroScene():
 			{'command' : 'fade_out'},
 			{'command' : 'set_bg', 'value': "old_man"},
 			{'command' : 'show_character', 'value': "sensei"},
-			{'command' : 'say', 'character' : 'Sensei', 'line' : "Finally the day has come for me to retire as protector of the village, and one of you youngsters must take my place. It is a very honorable position. The most honorable in fact, as you all know I am married to the most beutiful girl in the village. She would not notice me if it was not for this job. Anyway rookies, let me explain this again to avoid confusion. I will take on mentorship for the most promising of you all. This is a once in a lifetime opportunity."},
+			{'command' : 'say', 'character' : 'Sensei', 'line' : "Finally the day has come for me to retire as protector of the village, and one of you youngsters must take my place. It is a very honorable position."},
+			{'command' : 'say', 'character' : 'Sensei', 'line' : "The most honorable in fact, as you all know I am married to the most beutiful girl in the village. She would not notice me if it was not for this job."},
+			{'command' : 'say', 'character' : 'Sensei', 'line' : "Anyway rookies, let me explain this again to avoid confusion. I will take on mentorship for the most promising of you all. This is a once in a lifetime opportunity."},
 			{'command' : 'show_character', 'value': "jens"},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "Hey Billy, I will beat you this time. I have practiced everyday for a year, you won't stand a chance."},
 			{'command' : 'say', 'character' : 'Billy',  'line' : "Hehe whatever."},
@@ -144,21 +170,21 @@ class IntroScene():
 			{'command' : 'show_character', 'value': "jens"},
 			{'command' : 'say', 'character' : 'Jens', 'line' :  "I'm listening"},
 			{'command' : 'show_character', 'value': "divel"},
-			{'command' : 'say', 'character' : "Divel", 'line' : "Billy is a hero now, right?"},
+			{'command' : 'say', 'character' : "Divel", 'line' : "Billy is a hero, right?"},
 			{'command' : 'show_character', 'value': "jens"},
-			{'command' : 'say', 'character' : 'Jens', 'line' : "Well yeah, that cheap bastard!"},
+			{'command' : 'say', 'character' : 'Jens', 'line' : "Yeah, I guess. That cheap bastard!"},
 			{'command' : 'show_character', 'value': "divel"},
-			{'command' : 'say', 'character' : "Divel", 'line' : "So he like, runs dungeons and stuff?"},
+			{'command' : 'say', 'character' : "Divel", 'line' : "And he runs dungeons and does other heroic stuff, right?"},
 			{'command' : 'show_character', 'value': "jens"},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "Yeah, so? He is so much stronger than me, I cannot hurt him."},
 			{'command' : 'show_character', 'value': "divel"},
-			{'command' : 'say', 'character' : "Divel", 'line' : "No not you, weakling. But I. I can."},
+			{'command' : 'say', 'character' : "Divel", 'line' : "No not you, weakling. But I can. I work as a dungeon boss, or well did, before i got unemployed."},
 			{'command' : 'show_character', 'value': "jens"},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "Give me a break, you are like 2 sticks tall."},
 			{'command' : 'show_character', 'value': "divel"},
-			{'command' : 'say', 'character' : "Divel", 'line' : "Whit the right diet and training I can get stronger any man."},
+			{'command' : 'say', 'character' : "Divel", 'line' : "With the right diet and training I can get stronger than any man. Then if we spread word about a great treasure and it gets to Billy, I can guard it."},
 			{'command' : 'show_character', 'value': "jens"},
-			{'command' : 'say', 'character' : 'Jens', 'line' : "So what is the deal?"},
+			{'command' : 'say', 'character' : 'Jens', 'line' : "Hmm, so what is the deal here?"},
 			{'command' : 'show_character', 'value': "divel"},
 			{'command' : 'say', 'character' : "Divel", 'line' : "Well, you help me become strong engouh to conquer the world and I promise I will get back at Billy."},
 			{'command' : 'show_character', 'value': "jens"},
@@ -170,7 +196,7 @@ class IntroScene():
 			{'command' : 'say', 'character' : 'Jens', 'line' : "That you kill him slowly."},
 			{'command' : 'show_character', 'value': "divel"},
 			{'command' : 'say', 'character' :  "Divel",'line' : "Of course, that will be my pleasure."},
-			{'command' : 'say', 'character' :  "Divel",'line' : "Now let's get to work. You must help me become stronger in order for me to conquer the w... eh Kill Billy Svensson I mean."}]}
+			{'command' : 'say', 'character' :  "Divel",'line' : "Now let's get to work. You must help me become stronger in order for me to conquer the w... ahem Kill Billy Svensson."}]}
 if __name__ == '__main__':
 
 	pygame.init()
