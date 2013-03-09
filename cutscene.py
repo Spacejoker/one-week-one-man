@@ -62,14 +62,17 @@ class Cutscene():
 			return
 		bg = None
 		character_face = None
+		talk_box = None
 		for event in scene.script['steps']:
 
 			cmd = event['command']
 
 			if bg != None:
 				screen.blit(bg, (0,0))
+			if talk_box != None:
+				screen.blit(talk_box, (30,500))
 			if character_face != None:
-				screen.blit(character_face, (20,20))
+				screen.blit(character_face, (30,350))
 
 			if cmd == 'set_bg':
 				bg = pygame.image.load(os.path.join(BGS, event['value'] + '.png'))
@@ -87,6 +90,12 @@ class Cutscene():
 				#write some text
 				Cutscene.print_line(event, screen, font)
 
+			if cmd == 'show_talkbox':
+				if event['value'] == 'True':
+					talk_box = pygame.image.load(os.path.join(BGS, 'talkbox.png'))
+				else:
+					talk_box = None
+
 			if cmd != 'say':
 				continue
 			#print the stuff and wait for UI
@@ -98,10 +107,11 @@ class Cutscene():
 					if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 						return
 					break
+
 	@staticmethod
 	def print_line(event, screen, font):
 		tot_string = event['line']
-		y = 500
+		y = 530
 		x = 220
 		label = font.render(event['character'] + ":" , 1, (20,0,0))
 		screen.blit(label ,(x-30 - (len(event['character']) + 1) * 20, y))
@@ -123,16 +133,12 @@ class Cutscene():
 			cur += w + " "
 		label = font.render(cur , 1, (20,0,0))
 		screen.blit(label ,(x, y))
-				
+
 class IntroScene():
 	def __init__(self):
 		self.script = {'steps' : [
 			{'command' : 'set_bg', 'value': "jens_house"},
-			{'command' : 'show_character', 'value': "jens"},
-			{'command' : 'say', 'character' : "Mum", 'line' : "Good luck today Jens, I hope you win. I know how much you want this."},
-			{'command' : 'say', 'character' : "Jens", 'line' : "Thank you mum, I will show all of them that I am the strongest."},
-			{'command' : 'fade_out'},
-			{'command' : 'set_bg', 'value': "old_man"},
+			{'command' : 'show_talkbox', 'value': "True"},
 			{'command' : 'show_character', 'value': "sensei"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Finally the day has come for me to retire as protector of the village, and one of you youngsters must take my place. It is a very honorable position."},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "The most honorable in fact, as you all know I am married to the most beutiful girl in the village. She would not notice me if it was not for this job."},
@@ -198,6 +204,7 @@ class IntroScene():
 			{'command' : 'show_character', 'value': "divel"},
 			{'command' : 'say', 'character' :  "Divel",'line' : "Of course, that will be my pleasure."},
 			{'command' : 'say', 'character' :  "Divel",'line' : "Now let's get to work. You must help me become stronger in order for me to conquer the w... ahem Kill Billy Svensson."}]}
+
 if __name__ == '__main__':
 
 	pygame.init()
