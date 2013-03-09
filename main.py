@@ -5,9 +5,12 @@ import time
 from graphics import Graphics
 from menu import MainMenu
 from cutscene import RunIntro
+from game import Town
 
 scenes = {'main_menu' : MainMenu,
-		'run_intro' : RunIntro}
+		'run_intro' : RunIntro,
+		'new_game' : Town
+		}
 
 def loop():
 	g = Graphics()
@@ -22,8 +25,8 @@ def loop():
 		while model.new_scene != None:
 			next_scene = model.new_scene
 			model.new_scene = None
-			scene = scenes[next_scene](model)
-			print model.new_scene
+			clazz = scenes[next_scene]
+			scene = clazz(model)
 
 		events = pygame.event.get()
 		keymap = {}
