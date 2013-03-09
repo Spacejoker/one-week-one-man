@@ -5,48 +5,113 @@ import time
 
 WIDTH = 1280
 HEIGHT = 720
+BGS = os.path.join('images','bg')
 class Cutscene():
+
+	@staticmethod
+	def fade(bg, screen, fade_in=True):
+		FPS = 30
+		fpsClock = pygame.time.Clock()
+		DURATION = 0.5 # seconds
+		start_time = time.clock()
+		ratio = 0.0 # alpha as a float [0.0 .. 1.0]
+		while ratio < 1.0:
+			current_time = time.clock()
+			ratio = (current_time - start_time) / DURATION
+			if ratio > 1.0: # we're a bit late
+				ratio = 1.0
+			
+			if not fade_in:
+				ratio = 1 - ratio
+			# all your drawing details go in the following call
+			screen.fill((0,0,0), (0,0,WIDTH, HEIGHT))
+			bg.set_alpha(ratio*255)
+			screen.blit(bg, (0,0))
+			pygame.display.flip()
+			fpsClock.tick(FPS)
+
+			if current_time - start_time > DURATION:
+				break
+	@staticmethod
+	def play_movie(name, screen):
+		imgs = []
+
+		for i in range(0, 150):
+			filename = 'Intro_'
+			ending = str(i)
+			while len(ending) < 5:
+				ending  = "0" + ending
+			filename += ending + '.png'
+			imgs.append(pygame.image.load(os.path.join('movies', name, filename)))
+
+		for img in imgs:
+			window.blit(img, (0, 0, WIDTH, HEIGHT))
+			time.sleep(0.01)
+			pygame.display.flip()
 
 
 	@staticmethod
 	def show(name, screen):
+		font = pygame.font.SysFont("consolas", 15)	
 		if name == 'intro':
-			scene = Scene()
+			scene = IntroScene()
+			bg = None
 			for event in scene.script['steps']:
 				print event['command']
-		else:
+				cmd = event['command']
+				if bg != None:
+					screen.blit(bg, (0,0))
 
-			imgs = []
+				if cmd == 'set_bg':
+					bg = pygame.image.load(os.path.join(BGS, event['value'] + '.png'))
+					screen.blit(bg, (0,0))
+					Cutscene.fade( bg, screen )
+					continue
+				
+				if cmd == 'movie':
+					Cutscene.play_movie('intro', screen)
+					continue
 
-			for i in range(0, 150):
-				filename = 'Intro_'
-				ending = str(i)
-				while len(ending) < 5:
-					ending  = "0" + ending
-				filename += ending + '.png'
-				imgs.append(pygame.image.load(os.path.join('movies', name, filename)))
-
-			for img in imgs:
-				window.blit(img, (0, 0, WIDTH, HEIGHT))
-				time.sleep(0.01)
+				if cmd == 'fade_out':
+					Cutscene.fade(bg, screen, fade_in= False)
+					continue
+				
+				if cmd == 'say':
+					#write some text
+					
+					label = font.render(event['line'], 1, (255,255,255))
+					screen.blit(label ,(300, 550))
+					
+				#print the stuff and wait for UI
 				pygame.display.flip()
-
-class Scene():
+				while True:
+					keymap = {}
+					event = pygame.event.wait()
+					if event.type == pygame.KEYDOWN:
+						if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+							return
+						break
+class IntroScene():
 	def __init__(self):
 		self.script = {'steps' : [
 			{'command' : 'set_bg', 'value': "jens_house"},
 			{'command' : 'say', 'character' : "Mum", 'line' : "Good luck today Jens, I hope you win. I know how much you want this."},
 			{'command' : 'say', 'character' : "Jens", 'line' : "Thank you mum, I will show all of them that I am the strongest."},
+			{'command' : 'fade_out'},
 			{'command' : 'set_bg', 'value': "old_man"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Finally the day has come for me to retire as protector of the village, and one of you youngsters must take my place. It is a very honorable position. The most honorable in fact, as you all know I am married to the most beutiful girl in the village. She would not notice me if it was not for this job. Anyway rookies, let me explain this again to avoid confusion. I will take on mentorship for the most promising of you all. This is a once in a lifetime opportunity."},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "Hey Billy, I will beat you this time. I have practiced everyday for a year, you won't stand a chance."},
 			{'command' : 'say', 'character' : 'Billy',  'line' : "Hehe whatever."},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Shut up you two. We all know you are the favourites, but only the winner will take the place as my adept."},
+			{'command' : 'fade_out'},
 			{'command' : 'set_bg', 'value': "running_tracks"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Ok this is the test. The fastest runner will win."},
+			{'command' : 'fade_out'},
 			{'command' : "movie",'value' : "jens_loss"},
+			{'command' : 'set_bg', 'value': "running_tracks"},
 			{'command' : 'say', 'character' : 'Sensei', 'line' : "Congratulations Billy, you will be my new mentee. You can look forward to a life of glory and fame."},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "How could I loose. This can't be..."},
+			{'command' : 'fade_out'},
 			{'command' : "movie", 'value' : "old jens"},
 			{'command' : 'set_bg', 'value': "jens_house"},
 			{'command' : 'say', 'character' : "???", 'line' : "So you are still upset about that race huh?"},
@@ -69,7 +134,7 @@ class Scene():
 			{'command' : 'say', 'character' :  "???",'line' : "Anything, dear."},
 			{'command' : 'say', 'character' : 'Jens', 'line' : "That you kill him slowly."},
 			{'command' : 'say', 'character' :  "???",'line' : "Of course, that will be my pleasure."},
-			{'command' : 'say', 'character' :  "???",'line' : "Now let's get to work. You must help me become stronger in order for me to get strong enough to conquer the w... eh Kill Billy I mean."}]}
+			{'command' : 'say', 'character' :  "???",'line' : "Now let's get to work. You must help me become stronger in order for me to conquer the w... eh Kill Billy Svensson I mean."}]}
 if __name__ == '__main__':
 
 	pygame.init()
