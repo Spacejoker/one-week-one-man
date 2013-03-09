@@ -7,6 +7,7 @@ WIDTH = 1280
 HEIGHT = 720
 BGS = os.path.join('images','bg')
 CHARACTERS = os.path.join('images','characters')
+
 class Cutscene():
 
 	@staticmethod
@@ -33,6 +34,7 @@ class Cutscene():
 
 			if current_time - start_time > DURATION:
 				break
+
 	@staticmethod
 	def play_movie(name, screen):
 		imgs = []
@@ -49,7 +51,6 @@ class Cutscene():
 			window.blit(img, (0, 0, WIDTH, HEIGHT))
 			time.sleep(0.01)
 			pygame.display.flip()
-
 
 	@staticmethod
 	def show(name, screen):
