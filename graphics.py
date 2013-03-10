@@ -34,7 +34,11 @@ class Graphics():
 		self.screen.blit(scene.menu_choice, (x-40, y0 + scene.choice*50))
 	
 	def draw_town(self, scene, model):
+		
 		font = self.font
 		self.screen.blit(scene.bg, (0,0))
-			
+		if scene.choice == 0:
+			self.screen.blit(scene.marker.get_frame(), (233, 216))
+		elif scene.choice == 1:
+			self.screen.blit(scene.marker.get_frame(), (258, 596))
 		pass

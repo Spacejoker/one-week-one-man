@@ -6,7 +6,7 @@ class Scene():
 	def __init__(self):
 		self.name = 'base scene'
 		pass
-	def update(self, events, model):
+	def update(self, events, time_passed = 0):
 		raise NameError("Sub classes must implement me")
 
 class MainMenu(Scene):
@@ -29,7 +29,7 @@ class MainMenu(Scene):
 		self.model.new_scene = 'new_game'
 		self.model.game_state = None
 
-	def update(self, events):
+	def update(self, events, time_passed = 0):
 		for event in events:
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_DOWN:

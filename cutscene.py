@@ -7,6 +7,7 @@ from constants import *
 BGS = os.path.join('images','bg') 
 CHARACTERS =os.path.join('images','characters') 
 MISC =os.path.join('images','misc') 
+SOUND = 'sound'
 
 class Cutscene():
 

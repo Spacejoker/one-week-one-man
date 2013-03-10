@@ -1,3 +1,4 @@
 
 WIDTH = 1280
 HEIGHT = 720
+PLAY_SOUND = False
