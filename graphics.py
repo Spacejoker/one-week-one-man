@@ -39,6 +39,14 @@ class Graphics():
 		self.screen.blit(scene.bg, (0,0))
 		if scene.choice == 0:
 			self.screen.blit(scene.marker.get_frame(), (233, 216))
+			self.screen.blit(scene.cave_text, (170, 120))
 		elif scene.choice == 1:
 			self.screen.blit(scene.marker.get_frame(), (258, 596))
-		pass
+			self.screen.blit(scene.shop_text, (92, 402))
+		elif scene.choice == 2:
+			self.screen.blit(scene.marker.get_frame(), (1003, 307))
+			self.screen.blit(scene.workout_text, (790, 210))
+		elif scene.choice == 3:
+			self.screen.blit(scene.marker.get_frame(), (1125, 634))
+			self.screen.blit(scene.main_menu, (700, 470))
+

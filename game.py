@@ -64,12 +64,19 @@ class Town(Scene):
 		
 		self.choices =  [
 				{ 'name' : 'start dungeon', 'method' : self.start_dungeon},
+				{ 'name' : 'shop', 'method' : self.shop},
+				{ 'name' : 'train', 'method' : self.train},
 				{ 'name' : 'exit', 'method' : self.exit},
 				]
 		self.choice = 0
 		imgs = load_animation('marker', 4)		
 		self.marker = Animation(imgs, 400)
-	
+
+		self.cave_text = pygame.image.load(os.path.join(MISC, 'cave_text.png'))
+		self.shop_text = pygame.image.load(os.path.join(MISC, 'shop_text.png'))
+		self.workout_text = pygame.image.load(os.path.join(MISC, 'workout_text.png'))
+		self.main_menu = pygame.image.load(os.path.join(MISC, 'main_menu_text.png'))
+
 	def update(self, events, time_passed = 0 ):
 		for event in events:
 			if event.type == pygame.KEYDOWN:
@@ -88,6 +95,12 @@ class Town(Scene):
 		#set up dungeon data
 
 		self.model.new_scene = 'start_dungeon'
+
+	def shop(self):
+		self.model.new_scene = 'shop'
+
+	def train(self):
+		self.model.new_scene = 'train'
 	
 	def exit(self):
 		self.model.new_scene = 'main_menu'
