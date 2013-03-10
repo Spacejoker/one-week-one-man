@@ -16,7 +16,17 @@ class GameData():
 			'upgrades' : [],
 			'money' : 100})
 
+class Hero():
+	def __init__(self, hero_type, level):
+		self.name = self.generate_name(hero_type)
+		self.level = level
+		if hero_type == 'fighter':
+			self.small_img = load_image(CHARACTERS, 'small_fighter')
 
+	def generate_name(self, hero_type):
+		return "Spjute"
+
+			
 class Town(Scene):
 	def __init__(self, model):
 		self.name = 'town'
@@ -70,6 +80,7 @@ class Town(Scene):
 	def start_dungeon(self):
 
 		#set up dungeon data
+		self.model.hero = Hero()
 
 		self.model.new_scene = 'start_dungeon'
 
@@ -81,10 +92,12 @@ class Town(Scene):
 	
 	def exit(self):
 		self.model.new_scene = 'main_menu'
+
 class Dungeon(Scene):
 
 	def __init__(self, model):
 		print 'in dungeon'
+		self.hero = model.hero
 		self.name = 'dungeon'
 		self.bg = pygame.image.load(os.path.join(BGS,'dungeon.png'))
 		self.path_img = load_image(MISC, 'path')

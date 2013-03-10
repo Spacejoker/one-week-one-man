@@ -56,9 +56,11 @@ class Graphics():
 		screen = self.screen
 		screen.blit(scene.bg, (0,0))
 		for pos, step in enumerate(scene.path):
-			if pos > scene.hero_pos:
+			scrpos = (600 + step[0]*50, 200 + step[1]*50))
+			screen.blit(scene.path_img, scrpos)
+			if pos == scene.hero_pos:
+				screen.blit(scene.hero.small_img, scrpos)
 				break
-			screen.blit(scene.path_img, (600 + step[0]*50, 200 + step[1]*50))
 		
 		y = 520
 		x = 58
