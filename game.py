@@ -1,5 +1,5 @@
 from menu import Scene
-from cutscene import MISC, BGS, SOUND
+from cutscene import MISC, BGS, SOUND, CHARACTERS
 import pygame
 import os, sys
 from constants import PLAY_SOUND, load_animation, Animation, load_image
@@ -15,6 +15,11 @@ class GameData():
 			'level' : 1,
 			'upgrades' : [],
 			'money' : 100})
+class Enemy():
+	def __init__(self, enemy_type, level):
+		self.name = enemy_type
+		self.level = level
+		self.img = load_image(MISC, 'enemy_' + enemy_type)
 
 class Hero():
 	def __init__(self, hero_type, level):
@@ -80,7 +85,7 @@ class Town(Scene):
 	def start_dungeon(self):
 
 		#set up dungeon data
-		self.model.hero = Hero()
+		self.model.hero = Hero('fighter', 5)
 
 		self.model.new_scene = 'start_dungeon'
 
@@ -106,9 +111,8 @@ class Dungeon(Scene):
 		path = []
 		cur = (0,0)
 		arr = [(1,0),(-1,0),(0,1),(0,-1),(1,0),(-1,0)]
-
+		path.append(cur)
 		for i in range(0,30):
-			path.append(cur)
 			random.shuffle(arr)
 			for a in arr:
 				next_pos = (cur[0] + a[0], cur[1] + a[1])
@@ -116,13 +120,23 @@ class Dungeon(Scene):
 					path.append(next_pos)
 					cur = next_pos
 					break
-		
+
+		enemies = [None]
+
+		for i in range(1, len(path)-1):
+			if random.random() > 0.6:
+				enemies.append(Enemy('1', level=1))
+			else:
+				enemies.append(None)
+		enemies.append(Enemy('boss', level = 1))
 		self.path = path
 		self.hero_pos = 0
 		self.start_time = pygame.time.get_ticks()
 		self.console_messages = ['test', 'test2']
+		self.enemies = enemies
 
 	def update(self, events, time_passed):
 		if  pygame.time.get_ticks() - self.start_time > 200:
-			self.hero_pos = min(self.hero_pos + 1, len(self.path) -1)
+			self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
+			self.enemies[self.hero_pos] = None
 			self.start_time = pygame.time.get_ticks()
