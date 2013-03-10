@@ -6,10 +6,12 @@ class Graphics():
 	def __init__(self):
 
 		self.font = pygame.font.SysFont("consolas", 40)
+		self.small_font = pygame.font.SysFont("consolas", 20)
 		self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 		self.paintmodes = {
 				'main_menu' : self.draw_main_menu,
-				'town' : self.draw_town
+				'town' : self.draw_town,
+				'dungeon' : self.draw_dungeon,
 				}
 
 	def paint(self, scene, model):
@@ -31,7 +33,7 @@ class Graphics():
 			self.screen.blit(label ,(500, y))
 			y += 50
 
-		self.screen.blit(scene.menu_choice, (x-40, y0 + scene.choice*50))
+		self.screen.blit(scene.menu_choice.get_frame(), (x-70, y0 - 10 + scene.choice*50))
 	
 	def draw_town(self, scene, model):
 		
@@ -49,4 +51,20 @@ class Graphics():
 		elif scene.choice == 3:
 			self.screen.blit(scene.marker.get_frame(), (1125, 634))
 			self.screen.blit(scene.main_menu, (700, 470))
-
+	
+	def draw_dungeon(self, scene, model):
+		screen = self.screen
+		screen.blit(scene.bg, (0,0))
+		for pos, step in enumerate(scene.path):
+			if pos > scene.hero_pos:
+				break
+			screen.blit(scene.path_img, (600 + step[0]*50, 200 + step[1]*50))
+		
+		y = 520
+		x = 58
+		for id, msg in enumerate(scene.console_messages):
+			if id > 4:
+				break
+			label = self.small_font.render(msg , 1, (15,15, 15))
+			self.screen.blit(label ,(x, y))
+			y += 25

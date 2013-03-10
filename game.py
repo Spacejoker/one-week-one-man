@@ -2,19 +2,8 @@ from menu import Scene
 from cutscene import MISC, BGS, SOUND
 import pygame
 import os, sys
-from constants import PLAY_SOUND
-
-def load_animation(name, count):
-	imgs = []
-	for i in range(0, count):
-		filename = name
-		ending = str(i)
-		while len(ending) < 4:
-			ending  = "0" + ending
-		filename += '_' + ending + '_a.png'
-		print filename
-		imgs.append(pygame.image.load(os.path.join(MISC, filename)))
-	return imgs
+from constants import PLAY_SOUND, load_animation, Animation, load_image
+import random
 
 class GameData():
 	def __init__(self, data):
@@ -27,18 +16,6 @@ class GameData():
 			'upgrades' : [],
 			'money' : 100})
 
-class Animation():
-	def __init__(self, images, delay):
-		self.first_frame = pygame.time.get_ticks()
-		self.images = images
-		self.delay = delay	
-
-	def get_frame(self):
-		num = pygame.time.get_ticks()-self.first_frame
-		num /= self.delay
-		num = int(num)
-		num %= len(self.images)
-		return self.images[num]
 
 class Town(Scene):
 	def __init__(self, model):
@@ -80,9 +57,9 @@ class Town(Scene):
 	def update(self, events, time_passed = 0 ):
 		for event in events:
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_DOWN:
+				if event.key  in [pygame.K_DOWN, pygame.K_RIGHT]:
 					self.choice += 1
-				if event.key == pygame.K_UP:
+				if event.key in [pygame.K_UP, pygame.K_LEFT]:
 					self.choice -= 1
 				if event.key == pygame.K_RETURN:
 					self.choices[self.choice]['method']()
@@ -104,12 +81,35 @@ class Town(Scene):
 	
 	def exit(self):
 		self.model.new_scene = 'main_menu'
-
 class Dungeon(Scene):
 
 	def __init__(self, model):
+		print 'in dungeon'
 		self.name = 'dungeon'
+		self.bg = pygame.image.load(os.path.join(BGS,'dungeon.png'))
+		self.path_img = load_image(MISC, 'path')
+		field = []
+		levels = 5
+		path = []
+		cur = (0,0)
+		arr = [(1,0),(-1,0),(0,1),(0,-1),(1,0),(-1,0)]
+
+		for i in range(0,30):
+			path.append(cur)
+			random.shuffle(arr)
+			for a in arr:
+				next_pos = (cur[0] + a[0], cur[1] + a[1])
+				if next_pos not in path and abs(next_pos[0]) < 10 and abs(next_pos[1]) < 5:
+					path.append(next_pos)
+					cur = next_pos
+					break
+		
+		self.path = path
+		self.hero_pos = 0
+		self.start_time = pygame.time.get_ticks()
+		self.console_messages = ['test', 'test2']
 
 	def update(self, events, time_passed):
-		pass
-
+		if  pygame.time.get_ticks() - self.start_time > 200:
+			self.hero_pos = min(self.hero_pos + 1, len(self.path) -1)
+			self.start_time = pygame.time.get_ticks()

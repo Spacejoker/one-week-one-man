@@ -1,5 +1,6 @@
 import pygame
 from cutscene import MISC, BGS
+from constants import load_animation, Animation
 import os
 
 class Scene():
@@ -18,7 +19,8 @@ class MainMenu(Scene):
 				{ 'name' : 'exit', 'method' : self.exit},
 				]
 		self.choice = 0
-		self.menu_choice =  pygame.image.load(os.path.join(MISC, 'menu_choice.png'))
+		imgs = load_animation('marker', 4)		
+		self.menu_choice = Animation(imgs, 400)
 		self.bg =  pygame.image.load(os.path.join(BGS, 'main_menu.png'))
 		self.model = model
 
@@ -38,7 +40,6 @@ class MainMenu(Scene):
 					self.choice -= 1
 				if event.key == pygame.K_RETURN:
 					self.choices[self.choice]['method']()
-					print 'enter'
 		self.choice = self.choice % len(self.choices)
 
 	def exit(self):
