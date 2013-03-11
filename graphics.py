@@ -101,6 +101,9 @@ class Graphics():
 		for hero in scene.heroes:
 			pos =(x0 + xsize*hero.pos[0], y0 + ysize*hero.pos[1])
 			screen.blit(hero.small_img,pos) 
+			hp_perc = hero.hp / (hero.max_hp + 0.0)
+			hp_perc = max(0, (min(1, hp_perc)))
+			pygame.draw.rect(screen, (int(255 - 255*hp_perc),min(255, int(400*hp_perc)),0), (x, y, int(xsize*hp_perc), 4))
 		
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
