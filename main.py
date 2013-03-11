@@ -5,14 +5,15 @@ import time
 from graphics import Graphics
 from menu import MainMenu
 from cutscene import RunIntro
-from game import Town, Dungeon, Enemy
-from dungeon import ChooseDungeon
+from game import Town, Enemy
+from dungeon import ChooseDungeon, PostDungeon, Dungeon
 
 scenes = {'main_menu' : MainMenu,
 		'run_intro' : RunIntro,
 		'town' : Town,
 		'start_dungeon' : Dungeon,
-		'choose_dungeon' : ChooseDungeon
+		'choose_dungeon' : ChooseDungeon,
+		'post_dungeon' : PostDungeon
 		}
 
 pygame.mixer.init()
@@ -56,15 +57,6 @@ def loop():
 			last_paint = time.time()
 			g.paint(scene, model)
 
-		if model.wait:
-			event = pygame.event.wait()
-			if event.type == pygame.KEYDOWN:
-				if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-					return
-			model.wait = False
-			if hasattr(scene, 'start_time'):
-				scene.start_time = pygame.time.get_ticks()
-				scene.console_messages = []
 
 if __name__ == '__main__':
 	pygame.init()

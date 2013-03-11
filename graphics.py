@@ -12,7 +12,8 @@ class Graphics():
 				'main_menu' : self.draw_main_menu,
 				'town' : self.draw_town,
 				'dungeon' : self.draw_dungeon,
-				'choose':  self.draw_choose
+				'choose':  self.draw_choose,
+				'post' : self.draw_post
 				}
 
 	def paint(self, scene, model):
@@ -76,6 +77,32 @@ class Graphics():
 			label = self.small_font.render(msg , 1, (15,15, 15))
 			self.screen.blit(label ,(x, y))
 			y += 25
+		
+		x = 1075
+		y = 93
+		for id, item in enumerate(model.game_state['inventory']):
+			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small=True)
+			x += 30
+
+	def draw_text(self, text, position, small = False):
+		font = self.font
+		if small:
+			font = self.small_font
+		label = font.render(text , True, (255,255,255))
+		self.screen.blit(label ,position)
+
+	def draw_post(self, scene, model):
+		self.screen.blit(scene.bg, (0,0))
+		if scene.model.hero.hp < 0:
+			self.draw_text("The hero " + model.hero.name  + " was defeated!", (50, 50))
+		x = 50
+		y = 100
+		if len(model.game_state['loot']) == 0:
+			self.draw_text("No loot! You minions must have stolen it.", (x, y), small = True)
+
+		for item in model.game_state['loot']:
+			self.draw_text(str(item.quantity) + " "+ item.name, (x, y), small = True)
+			y += 50
 
 	def draw_choose(self, scene, model):
 		self.screen.blit(scene.bg, (0,0))
