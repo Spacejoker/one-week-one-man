@@ -12,6 +12,7 @@ class Graphics():
 				'main_menu' : self.draw_main_menu,
 				'town' : self.draw_town,
 				'dungeon' : self.draw_dungeon,
+				'choose':  self.draw_choose
 				}
 
 	def paint(self, scene, model):
@@ -57,8 +58,12 @@ class Graphics():
 		screen.blit(scene.bg, (0,0))
 		for pos, step in enumerate(scene.path):
 			scrpos = (600 + step[0]*50, 200 + step[1]*50)
+			if pos > scene.hero_pos + 1 and pos != len(scene.path) - 1:
+				continue
 			screen.blit(scene.path_img, scrpos)
-			if pos == scene.hero_pos:
+			if scene.bgitems[pos] != None and scene.enemies[pos] == None:
+				screen.blit(scene.bgitems[pos], scrpos)
+			if pos == scene.hero_pos and scene.hero.hp > 0:
 				screen.blit(scene.hero.small_img, scrpos)
 			elif scene.enemies[pos] != None:
 				screen.blit(scene.enemies[pos].img, scrpos)
@@ -66,8 +71,48 @@ class Graphics():
 		y = 520
 		x = 58
 		for id, msg in enumerate(scene.console_messages):
-			if id > 4:
+			if id > 7:
 				break
 			label = self.small_font.render(msg , 1, (15,15, 15))
 			self.screen.blit(label ,(x, y))
 			y += 25
+
+	def draw_choose(self, scene, model):
+		self.screen.blit(scene.bg, (0,0))
+		y0 = 100
+		y = y0
+		x = 300
+		mod = 130
+		
+		if scene.step == 0:
+			label = self.font.render("Choose treasure" , True, (255,255,255))
+			self.screen.blit(label ,(50, 59))
+			for i, c in enumerate(scene.choices):
+				x = 300 + (i/4)*500
+				y = y0  + mod* (i % 4)
+				
+				name = c['name']
+				label = self.font.render(name , True, (255,255,255))
+				self.screen.blit(label ,(x, y))
+				if i < 4:
+					label = self.font.render("(" + str(scene.gold_opts[i]) + " gold)" , True, (255,255,255))
+					self.screen.blit(label ,(x, y+50))
+		elif scene.step == 1:
+			label = self.font.render("Chosen treasure yielded the following interest:"  , True, (255,255,255))
+			self.screen.blit(label ,(50, 59))
+			for i, c in enumerate(scene.step2_choices):
+				x = 300 + (i/4)*500
+				y = y0  + mod* (i % 4)
+				
+				name = c['name']
+				label = self.font.render(name , True, (255,255,255))
+				self.screen.blit(label ,(x, y))
+
+		x = 300 + (scene.choice / 4)*500
+		y = mod * (scene.choice % 4)
+
+		self.screen.blit(scene.marker.get_frame(), (x-70,y0 +  y - 10 ))
+
+		if scene.step == 1:
+			label = self.font.render("chosen treasure: " + str(scene.current_bet) , True, (255,255,255))
+			self.screen.blit(label ,(50, 640))

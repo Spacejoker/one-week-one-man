@@ -4,22 +4,35 @@ import pygame
 import os, sys
 from constants import PLAY_SOUND, load_animation, Animation, load_image
 import random
+from random import randrange
 
 class GameData():
-	def __init__(self, data):
-		self.data = data
-
 	@staticmethod
 	def gen_new_player():
-		return GameData({
+		return {
 			'level' : 1,
 			'upgrades' : [],
-			'money' : 100})
+			'gold' : 100}
 class Enemy():
 	def __init__(self, enemy_type, level):
 		self.name = enemy_type
 		self.level = level
 		self.img = load_image(MISC, 'enemy_' + enemy_type)
+		self.loot = []
+		self.loot.append(Loot('gold', random.randrange(1, level*2)))
+		self.hp = level * 2
+		self.defence = level/2
+
+	def roll_dmg(self):
+		if self.name == 'rabbit':
+			return random.randrange(1, self.level + 1)
+		if self.name == 'boss':
+			return random.randrange(1, self.level * 5)
+		raise NameError('unknown enemytpe:' + self.name) 
+class Loot():
+	def __init__(self, name, quantity):
+		self.name = name
+		self.quantity = quantity
 
 class Hero():
 	def __init__(self, hero_type, level):
@@ -27,15 +40,30 @@ class Hero():
 		self.level = level
 		if hero_type == 'fighter':
 			self.small_img = load_image(CHARACTERS, 'small_fighter')
+			self.hp = level * 3 + randrange(0, level)
+			self.maxhp = self.hp
+			self.defence = level*1.5
+		self.loot = []
+		self.loot.append(Loot('gold', random.randrange(1, level*2)))
 
 	def generate_name(self, hero_type):
 		return "Spjute"
+	
+	def add_loot(self, loot):
+		self.loot.extend(loot)
+		msg = []
+		for l in loot:
+			msg.append( self.name  + " looted " + str(l.quantity) + " " + str(l.name))
+		return msg
+	
+		
+	def get_action(self):
+		return {'action' : 'attack', 'value' : random.randrange(self.level, self.level*3)}
 
-			
 class Town(Scene):
 	def __init__(self, model):
 		self.name = 'town'
-		if not hasattr(model, 'game_state'):
+		if not hasattr(model, 'game_state') or model.game_state is None:
 			model.game_state = GameData.gen_new_player()
 
 		model.places = {'places' : ['store', 'dungeons', 'something']}
@@ -87,7 +115,7 @@ class Town(Scene):
 		#set up dungeon data
 		self.model.hero = Hero('fighter', 5)
 
-		self.model.new_scene = 'start_dungeon'
+		self.model.new_scene = 'choose_dungeon'
 
 	def shop(self):
 		self.model.new_scene = 'shop'
@@ -122,21 +150,70 @@ class Dungeon(Scene):
 					break
 
 		enemies = [None]
+		self.bgitems = [None]
 
 		for i in range(1, len(path)-1):
 			if random.random() > 0.6:
-				enemies.append(Enemy('1', level=1))
+				enemies.append(Enemy('rabbit', level=randrange(1, 25)))
+				self.bgitems.append(load_image(MISC,'blood'))
 			else:
 				enemies.append(None)
-		enemies.append(Enemy('boss', level = 1))
+				self.bgitems.append(None)
+		enemies.append(model.boss)
+		self.bgitems.append(None)
 		self.path = path
 		self.hero_pos = 0
 		self.start_time = pygame.time.get_ticks()
-		self.console_messages = ['test', 'test2']
+		self.console_messages = [self.hero.name + " enters the dungeon"]
 		self.enemies = enemies
+		self.model = model
+		self.in_fight = False
+
+	def fight(self):
+		monster = self.enemies[self.hero_pos + 1]
+		hero_action = self.hero.get_action()
+		if hero_action['action'] == 'attack':
+			hdmg = 	hero_action['value']
+			totdmg = hdmg - monster.defence
+			if totdmg <= 0:
+				self.console_messages.append(self.hero.name + " does no damage to " + monster.name)
+			else:
+				self.console_messages.append(self.hero.name + " does " + str(totdmg) + " damage to " + monster.name)
+				monster.hp -= totdmg
+		if monster.hp <= 0:
+			self.enemies[self.hero_pos + 1] = None
+			self.console_messages.append( monster.name + " is defeated")
+			loot_msg = self.hero.add_loot(monster.loot)
+			for m in loot_msg:
+				self.console_messages.append( m)
+
+		mdmg = monster.roll_dmg()
+		totdmg = mdmg - self.hero.defence
+		if monster.hp < 0:
+			pass
+		elif totdmg <= 0:
+			self.console_messages.append(monster.name + " does no damage to " + self.hero.name)
+		else:
+			self.console_messages.append(monster.name + " does " + str(totdmg) + " damage to " + self.hero.name)
+			self.hero.hp -= totdmg
+		if self.hero.hp <= 0:
+			self.console_messages.append(self.hero.name + " is defeated")
+			self.model.new_scene = 'town'
 
 	def update(self, events, time_passed):
+		hero_pos = self.hero_pos
+	
+
 		if  pygame.time.get_ticks() - self.start_time > 200:
-			self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
-			self.enemies[self.hero_pos] = None
+			if self.in_fight:
+				self.fight()
+				if self.enemies[hero_pos + 1] == None:
+					self.in_fight = False
+				self.model.wait = True
+			elif self.enemies[hero_pos + 1] != None:
+				self.console_messages = [self.hero.name + " encounters a " + self.enemies[hero_pos +1].name]
+				self.model.wait = True
+				self.in_fight = True
+			else:
+				self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
 			self.start_time = pygame.time.get_ticks()

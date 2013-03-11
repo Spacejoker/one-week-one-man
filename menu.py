@@ -28,7 +28,7 @@ class MainMenu(Scene):
 		self.model.new_scene = 'run_intro'
 
 	def new_game(self):
-		self.model.new_scene = 'new_game'
+		self.model.new_scene = 'town'
 		self.model.game_state = None
 
 	def update(self, events, time_passed = 0):
