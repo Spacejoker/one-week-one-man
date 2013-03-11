@@ -58,17 +58,20 @@ class Graphics():
 	def draw_dungeon(self, scene, model):
 		screen = self.screen
 		screen.blit(scene.bg, (0,0))
-		for pos, step in enumerate(scene.path):
-			scrpos = (600 + step[0]*50, 200 + step[1]*50)
-			if pos > scene.hero_pos + 1 and pos != len(scene.path) - 1:
-				continue
-			screen.blit(scene.path_img, scrpos)
-			if scene.bgitems[pos] != None and scene.enemies[pos] == None:
-				screen.blit(scene.bgitems[pos], scrpos)
-			if pos == scene.hero_pos and scene.hero.hp > 0:
-				screen.blit(scene.hero.small_img, scrpos)
-			elif scene.enemies[pos] != None:
-				screen.blit(scene.enemies[pos].img, scrpos)
+		x0 = 20
+		xsize = 50
+		y0 = 20
+		ysize = 50
+		for y, line in enumerate(scene.field):
+			for x, c in enumerate(scene.field[y]):
+				scrpos = (x0 + x*xsize, y0 + y*ysize)
+				if scene.field[y][x] == '.':
+					screen.blit(scene.path_img, scrpos)
+
+		for key in scene.enemies:
+			scrpos = (x0 + key[0]*xsize, y0 + key[1]*ysize)
+			print 'enemy', key
+			screen.blit(scene.enemies[key].img, scrpos)
 		
 		y = 520
 		x = 58
@@ -89,7 +92,11 @@ class Graphics():
 		for id, item in enumerate(model.game_state['inventory']):
 			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small=True)
 			x += 30
-
+	
+		for hero in scene.heroes:
+			pos =(x0 + xsize*hero.pos[0], y0 + ysize*hero.pos[1])
+			screen.blit(hero.small_img,pos) 
+		
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
 
@@ -108,13 +115,17 @@ class Graphics():
 			y = 100
 			if len(model.game_state['loot']) == 0:
 				self.draw_text("No loot! You minions must have stolen it.", (x, y), small = True)
+			else:
+				self.draw_text("The following was found on his/her corpse:", (x, y), small = True)
+
+			y += 50
+			x += 10
 
 			for item in model.game_state['loot']:
 				self.draw_text(str(item.quantity) + " "+ item.name, (x, y), small = True)
 				y += 50
 		else:
 			self.draw_text("Divel was defeated, your treasure is lost!", (50, 50))
-
 
 	def draw_choose(self, scene, model):
 		self.screen.blit(scene.bg, (0,0))

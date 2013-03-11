@@ -6,7 +6,7 @@ from constants import PLAY_SOUND, load_animation, Animation, load_image
 import random
 from random import randrange
 from game import Hero, Enemy, Loot
-
+from collections import deque
 from namegen import NameGen
 
 class ChooseDungeon(Scene):
@@ -39,7 +39,7 @@ class ChooseDungeon(Scene):
 		self.choice = 0
 		self.current_bet = 0
 		self.current_hero = 0
-		model.boss = Enemy('boss', level = model.game_state['level'])
+		model.boss = Enemy(enemy_type = 'boss', level = model.game_state['level'])
 		model.boss.loot = []
 		model.boss.hp = model.game_state['hp']
 		model.boss.defense = model.game_state['defense']
@@ -50,7 +50,7 @@ class ChooseDungeon(Scene):
 		heroes = []
 		for i in range(0,4):
 
-			hero = Hero('fighter', randrange(1,40))
+			hero = Hero('fighter', randrange(1,int(max(3, self.current_bet/1000))))
 			hero.name = generator.gen_word()
 			heroes.append(hero)
 			
@@ -96,6 +96,17 @@ class PostDungeon(Scene):
 
 		#self.gained_gold = model.game_state['gained_gold']
 		#model.game_state['gold']  = model.game_state['gold']  + self.gained_gold
+		s = model.game_state
+		for item in model.game_state['loot']:
+			if item.name == 'gold':
+				s['gold'] += item.quantity
+			else:
+				if item.name in s:
+					s[item.name] += item.quantity
+				else:
+					s[item.name] = item.quantity
+
+			
 
 		self.bg =  pygame.image.load(os.path.join(BGS, 'choose.png'))
 
@@ -109,92 +120,74 @@ class PostDungeon(Scene):
 class Dungeon(Scene):
 
 	def __init__(self, model):
-		print 'in dungeon'
 		self.character_bg = load_image(MISC, 'character')
 		self.hero = model.hero
 		self.name = 'dungeon'
 		self.bg = pygame.image.load(os.path.join(BGS,'dungeon.png'))
 		self.path_img = load_image(MISC, 'path')
-		field = []
-		levels = 5
-		path = []
-		cur = (0,0)
-		arr = [(1,0),(-1,0),(0,1),(0,-1),(1,0),(-1,0),(-1,1), (-1,-1)]
-		path.append(cur)
-		for i in range(0,25):
-			random.shuffle(arr)
-			for a in arr:
-				next_pos = (cur[0] + a[0], cur[1] + a[1])
-				if next_pos not in path and next_pos[0] < 4 and next_pos[0] >= -10 and abs(next_pos[1]) < 5:
-					path.append(next_pos)
-					cur = next_pos
-					break
+		self.field = [
+			 '##################',
+			 '#................#',
+			 '#................#',
+			 '#................#',
+			 '#......##........#',
+			 '#......##........#',
+			 '#................#',
+			 '#................#',
+			 '#................#',
+			 '##################']
 
-		enemies = [None]
-		self.bgitems = [None]
 
-		for i in range(1, len(path)-1):
+		enemies = {}
+		for i in range(1, 20):
 			if random.random() > 0.6:
-				enemies.append(Enemy('rabbit', level=randrange(1, 25)))
-				self.bgitems.append(load_image(MISC,'blood'))
-			else:
-				enemies.append(None)
-				self.bgitems.append(None)
-		enemies.append(model.boss)
-		self.bgitems.append(None)
-		self.path = path
-		self.hero_pos = 0
+				x = randrange(0, 14)
+				y = randrange(0,9)
+				pos = (x,y)
+				if self.field[y][x] == '.' and pos not in enemies:
+					enemies[pos] = Enemy(level=randrange(1, 25))
+
+		self.enemies = enemies
+		self.divel_pos = (1,1)
+		self.heroes = [Hero('fighter', 4)]
 		self.start_time = pygame.time.get_ticks()
 		self.console_messages = [self.hero.name + " enters the dungeon"]
 		self.enemies = enemies
 		self.model = model
-		self.in_fight = False
 		self.choice = 0
 		self.old_msg = []
 
-	def fight(self):
-		monster = self.enemies[self.hero_pos + 1]
-		hero_action = self.hero.get_action()
+	def fight(self, monster, hero):
+		hero_action = hero.get_action()
 		if hero_action['action'] == 'attack':
 			hdmg = 	hero_action['value']
 			totdmg = hdmg - monster.defense
 			if totdmg <= 0:
-				self.console_messages.append(self.hero.name + " does no damage to " + monster.name)
+				self.console_messages.append(hero.name + " does no damage to " + monster.name)
 			else:
-				self.console_messages.append(self.hero.name + " does " + str(totdmg) + " damage to " + monster.name)
+				self.console_messages.append(hero.name + " does " + str(totdmg) + " damage to " + monster.name)
 				monster.hp -= totdmg
 
 				if monster.hp > 0:
 					self.console_messages.append(monster.name + " hp seems to be around " + str(monster.hp))
 		if monster.hp <= 0:
-			self.enemies[self.hero_pos + 1] = None
+			#todo kill monster 
 			self.console_messages.append( monster.name + " is defeated")
-			loot_msg = self.hero.add_loot(monster.loot)
+			loot_msg = hero.add_loot(monster.loot)
 			for m in loot_msg:
 				self.console_messages.append( m)
 
 		mdmg = monster.roll_dmg()
-		totdmg = mdmg - self.hero.defense
+		totdmg = mdmg - hero.defense
 		if monster.hp < 0:
 			pass
 		elif totdmg <= 0:
-			self.console_messages.append(monster.name + " does no damage to " + self.hero.name)
+			self.console_messages.append(monster.name + " does no damage to " + hero.name)
 		else:
-			self.console_messages.append(monster.name + " does " + str(totdmg) + " damage to " + self.hero.name)
-			self.hero.hp -= totdmg
-		if self.hero.hp <= 0 or self.enemies[len(self.path) -1] == None:
-			self.model.game_state['loot'] = self.hero.loot
-			if self.hero_pos < len(self.path) - 1 and random.random > 0.2:
-				self.model.game_state['loot'] = []
-			if self.enemies[len(self.path) -1 ] == None:
-				self.model.game_state['loot'] = []
-				self.model.game_state['gold'] -= self.model.bet
-				self.model.success = False
-			else:
-				self.model.success = True
-				
-			self.console_messages.append(self.hero.name + " is defeated")
-			self.model.new_scene = 'post_dungeon'
+			self.console_messages.append(monster.name + " does " + str(totdmg) + " damage to " + hero.name)
+			hero.hp -= totdmg
+		if hero.hp <= 0 or self.enemies[len(self.path) -1] == None:
+			self.console_messages.append(hero.name + " is defeated")
 
 	def update(self, events, time_passed):
 		update_now = False
@@ -202,32 +195,59 @@ class Dungeon(Scene):
 			if event.type == pygame.KEYDOWN:
 				if event.key  in [pygame.K_DOWN, pygame.K_RIGHT]:
 					self.choice += 1
-					self.model.wait = True
+					self.divel_pos = (self.dviel_pos[0] + 1, self.divel_pos[1] + 1)
 					return
 				if event.key  in [pygame.K_SPACE]:
 					update_now = True
 
-		if not update_now:
-			return
-		hero_pos = self.hero_pos
-	
-		self.archive()
-		if self.in_fight:
-			self.fight()
-			if self.enemies[hero_pos + 1] == None:
-				self.in_fight = False
-		elif self.enemies[hero_pos + 1] != None:
-			enemy = self.enemies[hero_pos +1]
-			self.console_messages.append(self.hero.name + " encounters a " + enemy.name + "(lvl " + str(enemy.level) + ")")
-			self.in_fight = True
-		else:
-			self.console_messages.append(self.hero.name + " continues exploring the dungeon")
-			self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
+		if pygame.time.get_ticks() - self.start_time > 1000:
+			update_now = True
+			self.start_time = pygame.time.get_ticks()
+			self.archive()
+		#if self.in_fight:
+			#self.fight()
+			#if self.enemies[hero_pos + 1] == None:
+				#self.in_fight = False
+		#elif self.enemies[hero_pos + 1] != None:
+			#enemy = self.enemies[hero_pos +1]
+			#self.console_messages.append(self.hero.name + " encounters a " + enemy.name + "(lvl " + str(enemy.level) + ")")
+			#self.in_fight = True
+		#else:
+			for h in self.heroes:
+				if h.path == None or len(h.path) == 0:
+					dirs = [(1,0), (-1,0), (0,1), (0,-1)]
+					visited = []
+					parent = {}
+					queue = deque()
+					queue.append(h.pos)
+					visited.append(h.pos)
+					target = (1,1)
+					while len(queue) > 0:
+						pop = queue.popleft()
+						if pop == target:
+							break
+						random.shuffle(dirs)
+						for d in dirs:
+							newpos = (pop[0] + d[0], pop[1] + d[1])
+							if newpos not in visited and self.field[newpos[1]][newpos[0]] == '.':
+								queue.append(newpos)
+								parent[newpos] = pop
+								visited.append(newpos)
+
+					path = deque()
+					pos = target
+					while(pos != h.pos):
+						path.append(pos)
+						pos = parent[pos]
+					path.reverse()
+					h.path = path
+
+				h.pos = h.path.popleft()
+
+			self.console_messages.append(h.name + " continues exploring the dungeon")
+			#self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
 
 		state = self.model.game_state
-		boss = self.enemies[len(self.path) - 1]
-		if boss != None:
-			state['hp'] = boss.hp
 
 	def archive(self):
 		self.old_msg.extend(self.console_messages)

@@ -5,6 +5,7 @@ import os, sys
 from constants import PLAY_SOUND, load_animation, Animation, load_image
 import random
 from random import randrange
+from collections import deque
 
 class GameData():
 	@staticmethod
@@ -17,22 +18,53 @@ class GameData():
 			'hp' : 100,
 			'max_hp' : 100,
 			'defense' : 10}
-		
+	
+enemy_data = [
+		{'name' : 'rabbit', 'minlvl' : 1, 'maxlvl' : 20, 'def' : 5, 'attack' : 2, 'hp' : 2, 'loot' : [
+			{'p' : 0.2, 'item' : 'potion', 'quantity' : 1},
+			{'p' : 0.01, 'item' : 'big potion', 'quantity' : 1}], 'rich' : 2},
+		{'name' : 'rat', 'minlvl' : 5, 'maxlvl' : 55, 'def' : 2, 'attack' : 3, 'hp' : 1, 'loot' : [
+			{'p' : 0.2, 'item' : 'potion', 'quantity' : 1},
+			{'p' : 0.6, 'item' : 'big potion', 'quantity' : 1}], 'rich' : 2},
+
+
+			]
 class Enemy():
-	def __init__(self, enemy_type, level):
+	def __init__(self, level, enemy_type = None):
 		self.name = enemy_type
 		self.level = level
-		self.img = load_image(MISC, 'enemy_' + enemy_type)
 		self.loot = []
-		self.loot.append(Loot('gold', random.randrange(1, level*2)))
-		self.hp = level * 2
-		self.defense = level/2
+
+		cands = []
+		for e in enemy_data:
+			print e
+			if e['minlvl'] <= level and e['maxlvl'] >= level:
+				cands.append(e)
+		print level
+		print cands
+		random.shuffle(cands)
+		enemy = cands[0]
+		self.img = load_image(MISC, 'enemy_' + enemy['name'])
+
+		self.hp = level * pow(2, enemy['hp'])
+		self.defense = level*enemy['def']
+		self.loot.append(Loot('gold', random.randrange(1, level*enemy['rich'])))
+
+		dmga = randrange(level*enemy['attack'], level*pow(enemy['attack'], 2))
+		dmgb = randrange(level*enemy['attack'], level*pow(enemy['attack'], 2))
+		self.mindmg = min(dmga, dmgb)
+		self.maxdmg = max(dmga, dmgb) + 1
+		print level*enemy['attack'], " ---- ",  level*pow(enemy['attack'], 2)
+		print 'min', self.mindmg,  ', max:', self.maxdmg
+		self.name = enemy['name']
 
 	def roll_dmg(self):
-		if self.name == 'rabbit':
-			return random.randrange(1, self.level + 1)
+		if self.name != 'boss':
+			return random.randrange(self.mindmg,self.maxdmg)
+
 		if self.name == 'boss':
 			return random.randrange(1, self.level * 5)
+
 		raise NameError('unknown enemytpe:' + self.name) 
 class Loot():
 	def __init__(self, name, quantity):
@@ -51,6 +83,8 @@ class Hero():
 		self.loot = []
 		self.gold = random.randrange(1, level*2)
 		self.hero_type = hero_type
+		self.pos = (14, 7)
+		self.path = deque()
 
 	def generate_name(self, hero_type):
 		return "Spjute"
