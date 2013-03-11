@@ -25,10 +25,6 @@ def loop():
 	model = type('Model', (object,), {})
 	model.exit = False
 	model.new_scene = 'main_menu'
-	model.boss = Enemy('boss', level = 10)
-	model.boss.loot = []
-	model.boss.hp = 100
-	model.boss.defence = 10
 	model.wait = False	
 
 	t = time.time()

@@ -15,7 +15,9 @@ class GameData():
 			'gold' : 100,
 			'inventory' : [Loot('potion', 5)],
 			'hp' : 100,
-			'max_hp' : 100}
+			'max_hp' : 100,
+			'defense' : 10}
+		
 class Enemy():
 	def __init__(self, enemy_type, level):
 		self.name = enemy_type
@@ -24,7 +26,7 @@ class Enemy():
 		self.loot = []
 		self.loot.append(Loot('gold', random.randrange(1, level*2)))
 		self.hp = level * 2
-		self.defence = level/2
+		self.defense = level/2
 
 	def roll_dmg(self):
 		if self.name == 'rabbit':
@@ -44,10 +46,11 @@ class Hero():
 		if hero_type == 'fighter':
 			self.small_img = load_image(CHARACTERS, 'small_fighter')
 			self.hp = level * 3 + randrange(0, level)
-			self.maxhp = self.hp
-			self.defence = level*1.5
+			self.max_hp = self.hp
+			self.defense = level*1.5
 		self.loot = []
-		self.loot.append(Loot('gold', random.randrange(1, level*2)))
+		self.gold = random.randrange(1, level*2)
+		self.hero_type = hero_type
 
 	def generate_name(self, hero_type):
 		return "Spjute"
@@ -57,6 +60,8 @@ class Hero():
 		msg = []
 		for l in loot:
 			msg.append( self.name  + " looted " + str(l.quantity) + " " + str(l.name))
+			if l.name == 'gold':
+				self.gold += l.quantity
 		return msg
 	
 		
@@ -69,6 +74,7 @@ class Town(Scene):
 		if not hasattr(model, 'game_state') or model.game_state is None:
 			model.game_state = GameData.gen_new_player()
 
+		self.character_bg = load_image(MISC, 'character')
 		model.places = {'places' : ['store', 'dungeons', 'something']}
 
 		model.target_selection = target_selection = 0

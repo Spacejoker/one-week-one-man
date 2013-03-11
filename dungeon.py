@@ -11,6 +11,7 @@ from namegen import NameGen
 
 class ChooseDungeon(Scene):
 	def __init__(self, model):
+		self.character_bg = load_image(MISC, 'character')
 		self.name = 'choose'
 
 		self.model = model
@@ -38,6 +39,10 @@ class ChooseDungeon(Scene):
 		self.choice = 0
 		self.current_bet = 0
 		self.current_hero = 0
+		model.boss = Enemy('boss', level = model.game_state['level'])
+		model.boss.loot = []
+		model.boss.hp = model.game_state['hp']
+		model.boss.defense = model.game_state['defense']
 
 	def gold(self):
 		self.current_bet = self.gold_opts[self.choice]
@@ -45,7 +50,7 @@ class ChooseDungeon(Scene):
 		heroes = []
 		for i in range(0,4):
 
-			hero = Hero('fighter', 3)
+			hero = Hero('fighter', randrange(1,40))
 			hero.name = generator.gen_word()
 			heroes.append(hero)
 			
@@ -83,6 +88,7 @@ class ChooseDungeon(Scene):
 class PostDungeon(Scene):
 
 	def __init__(self, model):
+		self.character_bg = load_image(MISC, 'character')
 		self.name = 'post'
 
 		self.model = model
@@ -103,6 +109,7 @@ class Dungeon(Scene):
 
 	def __init__(self, model):
 		print 'in dungeon'
+		self.character_bg = load_image(MISC, 'character')
 		self.hero = model.hero
 		self.name = 'dungeon'
 		self.bg = pygame.image.load(os.path.join(BGS,'dungeon.png'))
@@ -142,18 +149,21 @@ class Dungeon(Scene):
 		self.model = model
 		self.in_fight = False
 		self.choice = 0
+		self.old_msg = []
 
 	def fight(self):
 		monster = self.enemies[self.hero_pos + 1]
 		hero_action = self.hero.get_action()
 		if hero_action['action'] == 'attack':
 			hdmg = 	hero_action['value']
-			totdmg = hdmg - monster.defence
+			totdmg = hdmg - monster.defense
 			if totdmg <= 0:
 				self.console_messages.append(self.hero.name + " does no damage to " + monster.name)
 			else:
 				self.console_messages.append(self.hero.name + " does " + str(totdmg) + " damage to " + monster.name)
 				monster.hp -= totdmg
+				if monster.hp > 0:
+					self.console_messages.append(monster.name + " hp seems to be around " + str(monster.hp))
 		if monster.hp <= 0:
 			self.enemies[self.hero_pos + 1] = None
 			self.console_messages.append( monster.name + " is defeated")
@@ -162,7 +172,7 @@ class Dungeon(Scene):
 				self.console_messages.append( m)
 
 		mdmg = monster.roll_dmg()
-		totdmg = mdmg - self.hero.defence
+		totdmg = mdmg - self.hero.defense
 		if monster.hp < 0:
 			pass
 		elif totdmg <= 0:
@@ -172,7 +182,7 @@ class Dungeon(Scene):
 			self.hero.hp -= totdmg
 		if self.hero.hp <= 0:
 			self.model.game_state['loot'] = self.hero.loot
-			if self.hero_pos < len(self.path) - 1:
+			if self.hero_pos < len(self.path) - 1 and random.random > 0.8:
 				self.model.game_state['loot'] = []
 			self.console_messages.append(self.hero.name + " is defeated")
 			self.model.new_scene = 'post_dungeon'
@@ -192,14 +202,21 @@ class Dungeon(Scene):
 			return
 		hero_pos = self.hero_pos
 	
-		self.console_messages = []
-
+		self.archive()
 		if self.in_fight:
 			self.fight()
 			if self.enemies[hero_pos + 1] == None:
 				self.in_fight = False
 		elif self.enemies[hero_pos + 1] != None:
-			self.console_messages = [self.hero.name + " encounters a " + self.enemies[hero_pos +1].name]
+			self.console_messages.append(self.hero.name + " encounters a " + self.enemies[hero_pos +1].name)
 			self.in_fight = True
 		else:
+			self.console_messages.append(self.hero.name + " continues exploring the dungeon")
 			self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
+
+	def archive(self):
+		self.old_msg.extend(self.console_messages)
+		self.console_messages = []
+
+		if len( self.old_msg) > 7:
+			self.old_msg = self.old_msg[-7:]

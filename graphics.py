@@ -53,6 +53,7 @@ class Graphics():
 		elif scene.choice == 3:
 			self.screen.blit(scene.marker.get_frame(), (1125, 634))
 			self.screen.blit(scene.main_menu, (700, 470))
+		self.draw_stats(scene, model)
 	
 	def draw_dungeon(self, scene, model):
 		screen = self.screen
@@ -74,8 +75,13 @@ class Graphics():
 		for id, msg in enumerate(scene.console_messages):
 			if id > 7:
 				break
-			label = self.small_font.render(msg , 1, (15,15, 15))
-			self.screen.blit(label ,(x, y))
+			self.draw_text(msg, (x,y), small=True, color=(15, 15, 15))
+			y += 25
+
+		for id, msg in enumerate(scene.old_msg):
+			if id + len(scene.console_messages) > 7:
+				break
+			self.draw_text(msg, (x,y), small=True, color=(150, 150, 150))
 			y += 25
 		
 		x = 1075
@@ -84,11 +90,14 @@ class Graphics():
 			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small=True)
 			x += 30
 
-	def draw_text(self, text, position, small = False):
+		self.draw_stats(scene, model)
+		self.draw_hero_stats(scene, model)
+
+	def draw_text(self, text, position, small = False, color = (250, 250, 250)):
 		font = self.font
 		if small:
 			font = self.small_font
-		label = font.render(text , True, (255,255,255))
+		label = font.render(text , True, color)
 		self.screen.blit(label ,position)
 
 	def draw_post(self, scene, model):
@@ -143,9 +152,18 @@ class Graphics():
 		if scene.step == 1:
 			label = self.font.render("chosen treasure: " + str(scene.current_bet) , True, (255,255,255))
 			self.screen.blit(label ,(50, 640))
-
+		self.draw_stats(scene, model)
+	
+	def draw_stats(self, scene, model):
 		self.screen.blit(scene.character_bg, (870, 5))
 
-		self.draw_text('Level: ' + model.game_state['level'], (894, 35))
-		self.draw_text('Gold: ' + model.game_state['gold'], (894, 70))
-		self.draw_text('Hp: ' + model.game_state['hp']  + ' / ' + model.game_state['max_hp'], (894, 105))
+		self.draw_text('Boss Level: ' + str( model.game_state['level']), (897, 35), small = True)
+		self.draw_text('Gold: ' + str( model.game_state['gold'] ) , (897, 60), small = True)
+		self.draw_text('Hp: ' + str( model.game_state['hp'] )  + ' / ' + str( model.game_state['max_hp'] ), (897, 85), small = True)
+
+	def draw_hero_stats(self, scene, model):
+		self.screen.blit(scene.character_bg, (870, 185))
+
+		self.draw_text(model.hero.name + ', level ' + str( model.hero.level) + ' ' + model.hero.hero_type, (897, 215), small = True)
+		self.draw_text('Gold: ' + str( model.hero.gold ) , (897, 240), small = True)
+		self.draw_text('Hp: ' + str( model.hero.hp )  + ' / ' + str( model.hero.max_hp ), (897, 265), small = True)
