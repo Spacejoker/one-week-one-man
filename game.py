@@ -71,7 +71,7 @@ class Loot():
 class Hero():
 	def __init__(self, hero_type, level):
 		self.generator = NameGen('name_gen_file.txt')
-		self.name = self.generate_name(hero_type)
+		self.name = self.generate_name(hero_type) + " (Lvl " + str(level) + ")"
 		self.level = level
 		if hero_type == 'fighter':
 			self.small_img = load_image(CHARACTERS, 'small_fighter')

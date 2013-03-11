@@ -136,29 +136,30 @@ class Dungeon(Scene):
 			 '#................#',
 			 '##################']
 
-		enemies = {}
+		self.enemies = {}
 		self.spawn = (16,8)
-		for i in range(1, 100):
-			if random.random() > 0.6:
-				x = randrange(0, 14)
-				y = randrange(0,9)
-				pos = (x,y)
-				if self.field[y][x] == '.' and pos not in enemies and pos != self.spawn:
-					enemies[pos] = Enemy(level=randrange(1, 25))
-		self.enemies = enemies
 		self.divel_pos = (1,1)
+
+		self.inactive_minions = []
+		for i in range(1, 10):
+			self.inactive_minions.append(Enemy(level=randrange(1, 25)))
+
 		self.heroes = []
-		self.add_hero()
 		self.start_time = pygame.time.get_ticks()
-		self.enemies = enemies
 		self.model = model
 		self.choice = 0
 		self.old_msg = []
-	
+		self.pos = (1,1)	
+		self.divel = load_image(MISC, 'enemy_boss')
+		self.console_messages = []
+		self.show_minions = False
+		self.add_hero()
+		self.chosen_inactive = 0
+
 	def add_hero(self):
 		hero = Hero('fighter', 4)
-		self.console_messages = [hero.name + " enters the dungeon"]
 		self.heroes.append(hero)
+		self.console_messages.append({'msg' : hero.name + ' enters the cage', 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 
 	def fight(self, monster, hero):
 		hero_action = hero.get_action()
@@ -166,56 +167,80 @@ class Dungeon(Scene):
 			hdmg = 	hero_action['value']
 			totdmg = hdmg - monster.defense
 			if totdmg <= 0:
-				self.console_messages.append(hero.name + " does no damage to " + monster.name)
+				self.console_messages.append({'msg' : hero.name + " does no damage to " + monster.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 			else:
-				self.console_messages.append(hero.name + " does " + str(totdmg) + " damage to " + monster.name)
+				self.console_messages.append({'msg' : hero.name + " does " + str(totdmg) + " damage to " + monster.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 				monster.hp -= totdmg
 
 				if monster.hp > 0:
-					self.console_messages.append(monster.name + " hp seems to be around " + str(monster.hp))
+					self.console_messages.append({'msg' : monster.name + " hp seems to be around " + str(monster.hp), 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 		if monster.hp <= 0:
 			#todo kill monster 
-			self.console_messages.append( monster.name + " is defeated")
+			self.console_messages.append({'msg' :  monster.name + " is defeated", 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 			loot_msg = hero.add_loot(monster.loot)
 			for m in loot_msg:
-				self.console_messages.append( m)
+				self.console_messages.append({'msg' :  m, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 
 		mdmg = monster.roll_dmg()
 		totdmg = mdmg - hero.defense
 		if monster.hp < 0:
 			pass
 		elif totdmg <= 0:
-			self.console_messages.append(monster.name + " does no damage to " + hero.name)
+			self.console_messages.append({'msg' : monster.name + " does no damage to " + hero.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 		else:
-			self.console_messages.append(monster.name + " does " + str(totdmg) + " damage to " + hero.name)
+			self.console_messages.append({'msg' : monster.name + " does " + str(totdmg) + " damage to " + hero.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 			hero.hp -= totdmg
 		if hero.hp <= 0:
-			self.console_messages.append(hero.name + " is defeated")
+			self.console_messages.append({'msg' : hero.name + " is defeated", 'time' : pygame.time.get_ticks(), 'type' : 'event'})
+
+	def isfree(self, pos):
+		return self.field[pos[1]][pos[0]] == '.' and pos not in [x.pos for x in self.heroes]
 
 	def update(self, events, time_passed):
 		update_now = False
 		for event in events:
+			move_map = {pygame.K_DOWN : (self.divel_pos[0] , self.divel_pos[1] + 1),
+			pygame.K_UP : (self.divel_pos[0] , self.divel_pos[1] - 1),
+			pygame.K_LEFT : (self.divel_pos[0] - 1, self.divel_pos[1] ),
+			pygame.K_RIGHT : (self.divel_pos[0] + 1, self.divel_pos[1] )}
+
+			for h in self.heroes:
+				h.path = []
+
 			if event.type == pygame.KEYDOWN:
-				if event.key  in [pygame.K_DOWN, pygame.K_RIGHT]:
-					self.choice += 1
-					self.divel_pos = (self.dviel_pos[0] + 1, self.divel_pos[1] + 1)
-					return
-				if event.key  in [pygame.K_SPACE]:
-					update_now = True
+				if event.key  in move_map:
+					new_pos = move_map[event.key]
+					if self.isfree(new_pos):
+						self.divel_pos = new_pos
+				if event.unicode in ['d', 'D']:
+					if self.divel_pos in self.enemies:
+						rem = self.enemies[self.divel_pos]
+						del self.enemies[self.divel_pos]
+						self.inactive_minions.append(rem)
+						self.console_messages.append({'msg' : 'Deleted mob' , 'time' : pygame.time.get_ticks(), 'type' : 'action'})
+				if event.unicode in ['a', 'A'] and self.isfree(self.divel_pos):
+					pos = self.divel_pos
+					if pos not in self.enemies and len(self.inactive_minions) > 0:
+						im = self.inactive_minions
+						e = im[self.chosen_inactive]
+						del im[self.chosen_inactive]
+						self.inactive_minions = im
+						self.enemies[pos] = e
+				if event.unicode in ['o', 'O'] and self.isfree(self.divel_pos):
+					self.chosen_inactive -= 1
+				if event.unicode in ['p', 'P'] and self.isfree(self.divel_pos):
+					self.chosen_inactive += 1
+
+				l = len(self.inactive_minions)
+				self.chosen_inactive += l
+				self.chosen_inactive %= l
+				
 
 		if pygame.time.get_ticks() - self.start_time > 1000:
 			update_now = True
 			self.start_time = pygame.time.get_ticks()
 			self.archive()
-		#if self.in_fight:
-			#self.fight()
-			#if self.enemies[hero_pos + 1] == None:
-				#self.in_fight = False
-		#elif self.enemies[hero_pos + 1] != None:
-			#enemy = self.enemies[hero_pos +1]
-			#self.console_messages.append(self.hero.name + " encounters a " + enemy.name + "(lvl " + str(enemy.level) + ")")
-			#self.in_fight = True
-		#else:
+
 			self.heroes = [x for x in self.heroes if x.hp > 0]
 			for h in self.heroes:
 				dirs = [(1,0), (-1,0), (0,1), (0,-1)]
@@ -225,7 +250,6 @@ class Dungeon(Scene):
 					if newpos in self.enemies:
 						self.fight(self.enemies[newpos], h)
 						fight = True
-						break
 				if fight:
 					continue
 
@@ -243,31 +267,30 @@ class Dungeon(Scene):
 						random.shuffle(dirs)
 						for d in dirs:
 							newpos = (pop[0] + d[0], pop[1] + d[1])
-							if newpos not in visited and self.field[newpos[1]][newpos[0]] == '.':
+							if self.isfree(newpos) and newpos not in visited:
 								queue.append(newpos)
 								parent[newpos] = pop
 								visited.append(newpos)
 
 					path = deque()
 					pos = target
-					while(pos != h.pos):
+					while(pos != h.pos) and pos in parent:
 						path.append(pos)
 						pos = parent[pos]
 					path.reverse()
 					h.path = path
+				if len(h.path) > 0:
+					h.pos = h.path.popleft()
 
-				h.pos = h.path.popleft()
-
-				self.console_messages.append(h.name + " continues exploring the dungeon")
+				self.console_messages.append({'msg' : h.name + " continues exploring the dungeon", 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 			#self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
-			if random.random() > 0.95 and self.spawn not in [x.pos in self.heroes] and len(self.heroes) <= 4:
+			if random.random() > 0.85 and self.spawn not in [x.pos for x in self.heroes] and len(self.heroes) <= 4:
+				self.add_hero()
+			if random.random() > 0.2 and len(self.heroes) == 0:
 				self.add_hero()
 
 		state = self.model.game_state
 
 	def archive(self):
-		self.old_msg.extend(self.console_messages)
-		self.console_messages = []
-
-		if len( self.old_msg) > 7:
-			self.old_msg = self.old_msg[-7:]
+		if len( self.console_messages) > 7:
+			self.console_messages = self.console_messages[-7:]

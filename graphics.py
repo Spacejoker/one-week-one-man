@@ -74,18 +74,18 @@ class Graphics():
 		
 		y = 520
 		x = 58
+		scene.console_messages.reverse()
 		for id, msg in enumerate(scene.console_messages):
 			if id > 7:
 				break
-			self.draw_text(msg, (x,y), small=True, color=(15, 15, 15))
+			text_color = int(15 + max(0,135*min(1, (pygame.time.get_ticks() - msg['time'] - 1000 )/500.0)))
+			col = (text_color, text_color, text_color)
+			if msg['type'] == 'action':
+				col = (255 - text_color, text_color - 15,text_color - 15)
+			self.draw_text(msg['msg'], (x,y), small=True, color=col)
 			y += 25
+		scene.console_messages.reverse()
 
-		for id, msg in enumerate(scene.old_msg):
-			if id + len(scene.console_messages) > 7:
-				break
-			self.draw_text(msg, (x,y), small=True, color=(150, 150, 150))
-			y += 25
-		
 		x = 1075
 		y = 93
 		for id, item in enumerate(model.game_state['inventory']):
@@ -98,6 +98,7 @@ class Graphics():
 		
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
+		screen.blit(scene.divel, (x0 + xsize*scene.divel_pos[0], y0 + ysize*scene.divel_pos[1]))
 
 	def draw_text(self, text, position, small = False, color = (250, 250, 250)):
 		font = self.font
@@ -175,9 +176,10 @@ class Graphics():
 		self.draw_text('Hp: ' + str( model.game_state['hp'] )  + ' / ' + str( model.game_state['max_hp'] ), (897, 85), small = True)
 
 	def draw_hero_stats(self, scene, model):
-		#self.screen.blit(scene.character_bg, (870, 185))
+		self.screen.blit(scene.character_bg, (870, 185))
+		if len(scene.inactive_minions) == 0:
+			return
+		e = scene.inactive_minions[scene.chosen_inactive]
+		self.screen.blit(e.img, (900, 210))
 
-		#self.draw_text(model.hero.name + ', level ' + str( model.hero.level) + ' ' + model.hero.hero_type, (897, 215), small = True)
-		#self.draw_text('Gold: ' + str( model.hero.gold ) , (897, 240), small = True)
-		#self.draw_text('Hp: ' + str( model.hero.hp )  + ' / ' + str( model.hero.max_hp ), (897, 265), small = True)
-		pass
+		self.draw_text(e.name + ', level ' + str(e.level) , (897, 270), small = True)
