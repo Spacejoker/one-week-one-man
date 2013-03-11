@@ -143,3 +143,9 @@ class Graphics():
 		if scene.step == 1:
 			label = self.font.render("chosen treasure: " + str(scene.current_bet) , True, (255,255,255))
 			self.screen.blit(label ,(50, 640))
+
+		self.screen.blit(scene.character_bg, (870, 5))
+
+		self.draw_text('Level: ' + model.game_state['level'], (894, 35))
+		self.draw_text('Gold: ' + model.game_state['gold'], (894, 70))
+		self.draw_text('Hp: ' + model.game_state['hp']  + ' / ' + model.game_state['max_hp'], (894, 105))

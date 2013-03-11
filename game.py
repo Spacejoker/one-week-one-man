@@ -13,7 +13,9 @@ class GameData():
 			'level' : 1,
 			'upgrades' : [],
 			'gold' : 100,
-			'inventory' : [Loot('potion', 5)]}
+			'inventory' : [Loot('potion', 5)],
+			'hp' : 100,
+			'max_hp' : 100}
 class Enemy():
 	def __init__(self, enemy_type, level):
 		self.name = enemy_type
