@@ -280,9 +280,8 @@ class Dungeon(Scene):
 					h.path = path
 				if len(h.path) > 0:
 					h.pos = h.path.popleft()
+				h.path = deque()
 
-				self.console_messages.append({'msg' : h.name + " continues exploring the dungeon", 'time' : pygame.time.get_ticks(), 'type' : 'event'})
-			#self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
 			if random.random() > 0.85 and self.spawn not in [x.pos for x in self.heroes] and len(self.heroes) <= 4:
 				self.add_hero()
 			if random.random() > 0.2 and len(self.heroes) == 0:

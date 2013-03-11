@@ -76,7 +76,8 @@ class Graphics():
 			screen.blit(enemy.img, scrpos)
 			hp_perc = enemy.hp / (enemy.maxhp + 0.0)
 			hp_perc = max(0, (min(1, hp_perc)))
-			pygame.draw.rect(screen, (int(255 - 255*hp_perc),min(255, int(400*hp_perc)),0), (x, y, int(xsize*hp_perc), 4))
+			pygame.draw.rect(screen, (int(255 - 255*hp_perc),min(255, int(400*hp_perc)),0), (x, y, int(xsize*hp_perc), 3))
+			self.draw_text(str(enemy.level), (x + 30, y + 30), small=True)
 		
 		y = 520
 		x = 58
@@ -103,7 +104,8 @@ class Graphics():
 			screen.blit(hero.small_img,pos) 
 			hp_perc = hero.hp / (hero.max_hp + 0.0)
 			hp_perc = max(0, (min(1, hp_perc)))
-			pygame.draw.rect(screen, (int(255 - 255*hp_perc),min(255, int(400*hp_perc)),0), (x, y, int(xsize*hp_perc), 4))
+			pygame.draw.rect(screen, (int(255 - 255*hp_perc),min(255, int(400*hp_perc)),0), (pos[0], pos[1], int(xsize*hp_perc), 3))
+			self.draw_text(str(hero.level), (pos[0] + 30, pos[1] + 30), small=True)
 		
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
