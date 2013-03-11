@@ -70,7 +70,6 @@ class Graphics():
 
 		for key in scene.enemies:
 			scrpos = (x0 + key[0]*xsize, y0 + key[1]*ysize)
-			print 'enemy', key
 			screen.blit(scene.enemies[key].img, scrpos)
 		
 		y = 520

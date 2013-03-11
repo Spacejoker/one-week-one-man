@@ -139,7 +139,7 @@ class Dungeon(Scene):
 
 
 		enemies = {}
-		for i in range(1, 20):
+		for i in range(1, 100):
 			if random.random() > 0.6:
 				x = randrange(0, 14)
 				y = randrange(0,9)
@@ -186,8 +186,10 @@ class Dungeon(Scene):
 		else:
 			self.console_messages.append(monster.name + " does " + str(totdmg) + " damage to " + hero.name)
 			hero.hp -= totdmg
-		if hero.hp <= 0 or self.enemies[len(self.path) -1] == None:
+		if hero.hp <= 0:
 			self.console_messages.append(hero.name + " is defeated")
+		print hero.hp
+		print hero.name
 
 	def update(self, events, time_passed):
 		update_now = False
@@ -213,9 +215,20 @@ class Dungeon(Scene):
 			#self.console_messages.append(self.hero.name + " encounters a " + enemy.name + "(lvl " + str(enemy.level) + ")")
 			#self.in_fight = True
 		#else:
+			self.heroes = [x for x in self.heroes if x.hp > 0]
 			for h in self.heroes:
+				dirs = [(1,0), (-1,0), (0,1), (0,-1)]
+				fight = False
+				for d in dirs:
+					newpos = (h.pos[0] + d[0], h.pos[1] + d[1])
+					if newpos in self.enemies:
+						self.fight(self.enemies[newpos], h)
+						fight = True
+						break
+				if fight:
+					continue
+
 				if h.path == None or len(h.path) == 0:
-					dirs = [(1,0), (-1,0), (0,1), (0,-1)]
 					visited = []
 					parent = {}
 					queue = deque()
@@ -244,7 +257,7 @@ class Dungeon(Scene):
 
 				h.pos = h.path.popleft()
 
-			self.console_messages.append(h.name + " continues exploring the dungeon")
+				self.console_messages.append(h.name + " continues exploring the dungeon")
 			#self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
 
 		state = self.model.game_state
