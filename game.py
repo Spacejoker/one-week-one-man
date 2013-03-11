@@ -5,6 +5,7 @@ import os, sys
 from constants import PLAY_SOUND, load_animation, Animation, load_image
 import random
 from random import randrange
+from namegen import NameGen
 from collections import deque
 
 class GameData():
@@ -37,7 +38,6 @@ class Enemy():
 
 		cands = []
 		for e in enemy_data:
-			print e
 			if e['minlvl'] <= level and e['maxlvl'] >= level:
 				cands.append(e)
 		print level
@@ -73,6 +73,7 @@ class Loot():
 
 class Hero():
 	def __init__(self, hero_type, level):
+		self.generator = NameGen('name_gen_file.txt')
 		self.name = self.generate_name(hero_type)
 		self.level = level
 		if hero_type == 'fighter':
@@ -83,11 +84,11 @@ class Hero():
 		self.loot = []
 		self.gold = random.randrange(1, level*2)
 		self.hero_type = hero_type
-		self.pos = (14, 7)
+		self.pos = (16, 8)
 		self.path = deque()
 
 	def generate_name(self, hero_type):
-		return "Spjute"
+		return self.generator.gen_word()
 	
 	def add_loot(self, loot):
 		self.loot.extend(loot)
@@ -154,7 +155,7 @@ class Town(Scene):
 		pass
 	
 	def start_dungeon(self):
-		self.model.new_scene = 'choose_dungeon'
+		self.model.new_scene = 'start_dungeon'
 
 	def shop(self):
 		self.model.new_scene = 'shop'

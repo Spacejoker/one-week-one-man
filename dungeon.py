@@ -121,7 +121,6 @@ class Dungeon(Scene):
 
 	def __init__(self, model):
 		self.character_bg = load_image(MISC, 'character')
-		self.hero = model.hero
 		self.name = 'dungeon'
 		self.bg = pygame.image.load(os.path.join(BGS,'dungeon.png'))
 		self.path_img = load_image(MISC, 'path')
@@ -137,25 +136,29 @@ class Dungeon(Scene):
 			 '#................#',
 			 '##################']
 
-
 		enemies = {}
+		self.spawn = (16,8)
 		for i in range(1, 100):
 			if random.random() > 0.6:
 				x = randrange(0, 14)
 				y = randrange(0,9)
 				pos = (x,y)
-				if self.field[y][x] == '.' and pos not in enemies:
+				if self.field[y][x] == '.' and pos not in enemies and pos != self.spawn:
 					enemies[pos] = Enemy(level=randrange(1, 25))
-
 		self.enemies = enemies
 		self.divel_pos = (1,1)
-		self.heroes = [Hero('fighter', 4)]
+		self.heroes = []
+		self.add_hero()
 		self.start_time = pygame.time.get_ticks()
-		self.console_messages = [self.hero.name + " enters the dungeon"]
 		self.enemies = enemies
 		self.model = model
 		self.choice = 0
 		self.old_msg = []
+	
+	def add_hero(self):
+		hero = Hero('fighter', 4)
+		self.console_messages = [hero.name + " enters the dungeon"]
+		self.heroes.append(hero)
 
 	def fight(self, monster, hero):
 		hero_action = hero.get_action()
@@ -188,8 +191,6 @@ class Dungeon(Scene):
 			hero.hp -= totdmg
 		if hero.hp <= 0:
 			self.console_messages.append(hero.name + " is defeated")
-		print hero.hp
-		print hero.name
 
 	def update(self, events, time_passed):
 		update_now = False
@@ -259,6 +260,8 @@ class Dungeon(Scene):
 
 				self.console_messages.append(h.name + " continues exploring the dungeon")
 			#self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
+			if random.random() > 0.95 and self.spawn not in [x.pos in self.heroes]:
+				self.add_hero()
 
 		state = self.model.game_state
 

@@ -175,8 +175,9 @@ class Graphics():
 		self.draw_text('Hp: ' + str( model.game_state['hp'] )  + ' / ' + str( model.game_state['max_hp'] ), (897, 85), small = True)
 
 	def draw_hero_stats(self, scene, model):
-		self.screen.blit(scene.character_bg, (870, 185))
+		#self.screen.blit(scene.character_bg, (870, 185))
 
-		self.draw_text(model.hero.name + ', level ' + str( model.hero.level) + ' ' + model.hero.hero_type, (897, 215), small = True)
-		self.draw_text('Gold: ' + str( model.hero.gold ) , (897, 240), small = True)
-		self.draw_text('Hp: ' + str( model.hero.hp )  + ' / ' + str( model.hero.max_hp ), (897, 265), small = True)
+		#self.draw_text(model.hero.name + ', level ' + str( model.hero.level) + ' ' + model.hero.hero_type, (897, 215), small = True)
+		#self.draw_text('Gold: ' + str( model.hero.gold ) , (897, 240), small = True)
+		#self.draw_text('Hp: ' + str( model.hero.hp )  + ' / ' + str( model.hero.max_hp ), (897, 265), small = True)
+		pass
