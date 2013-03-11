@@ -61,6 +61,7 @@ class ChooseDungeon(Scene):
 				{ 'name' : heroes[3].name + '(lvl ' + str(heroes[3].level) + ')', 'method' : self.hero},
 			]
 		self.heroes = heroes
+		self.model.bet = self.current_bet
 
 	def hero(self):
 		self.chosen_hero = self.heroes[self.choice-4]
@@ -118,13 +119,13 @@ class Dungeon(Scene):
 		levels = 5
 		path = []
 		cur = (0,0)
-		arr = [(1,0),(-1,0),(0,1),(0,-1),(1,0),(-1,0)]
+		arr = [(1,0),(-1,0),(0,1),(0,-1),(1,0),(-1,0),(-1,1), (-1,-1)]
 		path.append(cur)
-		for i in range(0,30):
+		for i in range(0,25):
 			random.shuffle(arr)
 			for a in arr:
 				next_pos = (cur[0] + a[0], cur[1] + a[1])
-				if next_pos not in path and abs(next_pos[0]) < 10 and abs(next_pos[1]) < 5:
+				if next_pos not in path and next_pos[0] < 4 and next_pos[0] >= -10 and abs(next_pos[1]) < 5:
 					path.append(next_pos)
 					cur = next_pos
 					break
@@ -162,6 +163,7 @@ class Dungeon(Scene):
 			else:
 				self.console_messages.append(self.hero.name + " does " + str(totdmg) + " damage to " + monster.name)
 				monster.hp -= totdmg
+
 				if monster.hp > 0:
 					self.console_messages.append(monster.name + " hp seems to be around " + str(monster.hp))
 		if monster.hp <= 0:
@@ -180,10 +182,17 @@ class Dungeon(Scene):
 		else:
 			self.console_messages.append(monster.name + " does " + str(totdmg) + " damage to " + self.hero.name)
 			self.hero.hp -= totdmg
-		if self.hero.hp <= 0:
+		if self.hero.hp <= 0 or self.enemies[len(self.path) -1] == None:
 			self.model.game_state['loot'] = self.hero.loot
 			if self.hero_pos < len(self.path) - 1 and random.random > 0.2:
 				self.model.game_state['loot'] = []
+			if self.enemies[len(self.path) -1 ] == None:
+				self.model.game_state['loot'] = []
+				self.model.game_state['gold'] -= self.model.bet
+				self.model.success = False
+			else:
+				self.model.success = True
+				
 			self.console_messages.append(self.hero.name + " is defeated")
 			self.model.new_scene = 'post_dungeon'
 
@@ -208,11 +217,17 @@ class Dungeon(Scene):
 			if self.enemies[hero_pos + 1] == None:
 				self.in_fight = False
 		elif self.enemies[hero_pos + 1] != None:
-			self.console_messages.append(self.hero.name + " encounters a " + self.enemies[hero_pos +1].name)
+			enemy = self.enemies[hero_pos +1]
+			self.console_messages.append(self.hero.name + " encounters a " + enemy.name + "(lvl " + str(enemy.level) + ")")
 			self.in_fight = True
 		else:
 			self.console_messages.append(self.hero.name + " continues exploring the dungeon")
 			self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
+
+		state = self.model.game_state
+		boss = self.enemies[len(self.path) - 1]
+		if boss != None:
+			state['hp'] = boss.hp
 
 	def archive(self):
 		self.old_msg.extend(self.console_messages)

@@ -104,14 +104,17 @@ class Graphics():
 		self.screen.blit(scene.bg, (0,0))
 		if scene.model.hero.hp < 0:
 			self.draw_text("The hero " + model.hero.name  + " was defeated!", (50, 50))
-		x = 50
-		y = 100
-		if len(model.game_state['loot']) == 0:
-			self.draw_text("No loot! You minions must have stolen it.", (x, y), small = True)
+			x = 50
+			y = 100
+			if len(model.game_state['loot']) == 0:
+				self.draw_text("No loot! You minions must have stolen it.", (x, y), small = True)
 
-		for item in model.game_state['loot']:
-			self.draw_text(str(item.quantity) + " "+ item.name, (x, y), small = True)
-			y += 50
+			for item in model.game_state['loot']:
+				self.draw_text(str(item.quantity) + " "+ item.name, (x, y), small = True)
+				y += 50
+		else:
+			self.draw_text("Divel was defeated, your treasure is lost!", (50, 50))
+
 
 	def draw_choose(self, scene, model):
 		self.screen.blit(scene.bg, (0,0))
