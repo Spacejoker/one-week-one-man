@@ -142,7 +142,7 @@ class Dungeon(Scene):
 
 		self.inactive_minions = []
 		for i in range(1, 10):
-			self.inactive_minions.append(Enemy(level=randrange(1, 25)))
+			self.inactive_minions.append(Enemy(level=randrange(1, 5)))
 
 		self.heroes = []
 		self.start_time = pygame.time.get_ticks()
@@ -157,11 +157,11 @@ class Dungeon(Scene):
 		self.chosen_inactive = 0
 
 	def add_hero(self):
-		hero = Hero('fighter', 4)
+		hero = Hero('fighter', 10)
 		self.heroes.append(hero)
 		self.console_messages.append({'msg' : hero.name + ' enters the cage', 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 
-	def fight(self, monster, hero):
+	def fight(self, monster, hero, monster_pos):
 		hero_action = hero.get_action()
 		if hero_action['action'] == 'attack':
 			hdmg = 	hero_action['value']
@@ -177,9 +177,7 @@ class Dungeon(Scene):
 		if monster.hp <= 0:
 			#todo kill monster 
 			self.console_messages.append({'msg' :  monster.name + " is defeated", 'time' : pygame.time.get_ticks(), 'type' : 'event'})
-			loot_msg = hero.add_loot(monster.loot)
-			for m in loot_msg:
-				self.console_messages.append({'msg' :  m, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
+			del self.enemies[monster_pos]
 
 		mdmg = monster.roll_dmg()
 		totdmg = mdmg - hero.defense
@@ -232,8 +230,9 @@ class Dungeon(Scene):
 					self.chosen_inactive += 1
 
 				l = len(self.inactive_minions)
-				self.chosen_inactive += l
-				self.chosen_inactive %= l
+				if l > 0:
+					self.chosen_inactive += l
+					self.chosen_inactive %= l
 				
 
 		if pygame.time.get_ticks() - self.start_time > 1000:
@@ -248,7 +247,7 @@ class Dungeon(Scene):
 				for d in dirs:
 					newpos = (h.pos[0] + d[0], h.pos[1] + d[1])
 					if newpos in self.enemies:
-						self.fight(self.enemies[newpos], h)
+						self.fight(self.enemies[newpos], h, newpos)
 						fight = True
 				if fight:
 					continue

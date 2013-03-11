@@ -69,8 +69,14 @@ class Graphics():
 					screen.blit(scene.path_img, scrpos)
 
 		for key in scene.enemies:
-			scrpos = (x0 + key[0]*xsize, y0 + key[1]*ysize)
-			screen.blit(scene.enemies[key].img, scrpos)
+			x = x0 + key[0]*xsize
+			y = y0 + key[1]*ysize
+			scrpos = (x, y)
+			enemy = scene.enemies[key]
+			screen.blit(enemy.img, scrpos)
+			hp_perc = enemy.hp / (enemy.maxhp + 0.0)
+			hp_perc = max(0, (min(1, hp_perc)))
+			pygame.draw.rect(screen, (int(255 - 255*hp_perc),min(255, int(400*hp_perc)),0), (x, y, int(xsize*hp_perc), 4))
 		
 		y = 520
 		x = 58

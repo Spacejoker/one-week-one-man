@@ -45,6 +45,7 @@ class Enemy():
 		self.img = load_image(MISC, 'enemy_' + enemy['name'])
 
 		self.hp = level * pow(2, enemy['hp'])
+		self.maxhp = self.hp
 		self.defense = level*enemy['def']
 		self.loot.append(Loot('gold', random.randrange(1, level*enemy['rich'])))
 
