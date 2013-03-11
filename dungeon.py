@@ -182,7 +182,7 @@ class Dungeon(Scene):
 			self.hero.hp -= totdmg
 		if self.hero.hp <= 0:
 			self.model.game_state['loot'] = self.hero.loot
-			if self.hero_pos < len(self.path) - 1 and random.random > 0.8:
+			if self.hero_pos < len(self.path) - 1 and random.random > 0.2:
 				self.model.game_state['loot'] = []
 			self.console_messages.append(self.hero.name + " is defeated")
 			self.model.new_scene = 'post_dungeon'
