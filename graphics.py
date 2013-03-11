@@ -93,11 +93,6 @@ class Graphics():
 			y += 25
 		scene.console_messages.reverse()
 
-		x = 1075
-		y = 93
-		for id, item in enumerate(model.game_state['inventory']):
-			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small=True)
-			x += 30
 	
 		for hero in scene.heroes:
 			pos =(x0 + xsize*hero.pos[0], y0 + ysize*hero.pos[1])
@@ -110,6 +105,14 @@ class Graphics():
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
 		screen.blit(scene.divel, (x0 + xsize*scene.divel_pos[0], y0 + ysize*scene.divel_pos[1]))
+
+		x = 700
+		y = 526
+		for id in range(scene.chosen_item, scene.chosen_item + min(len(scene.items), 5)):
+			item = scene.items[id % len(scene.items)]
+			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small = True, color = (15, 15,15))
+			y += 30
+
 
 	def draw_text(self, text, position, small = False, color = (250, 250, 250)):
 		font = self.font

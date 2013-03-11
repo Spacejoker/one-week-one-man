@@ -17,10 +17,11 @@ scenes = {'main_menu' : MainMenu,
 		}
 
 pygame.mixer.init()
-
 def loop():
 	g = Graphics()
 	last_paint = 0
+
+	pygame.key.set_repeat(500, 100)
 
 	model = type('Model', (object,), {})
 	model.exit = False

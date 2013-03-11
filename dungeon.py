@@ -155,6 +155,8 @@ class Dungeon(Scene):
 		self.show_minions = False
 		self.add_hero()
 		self.chosen_inactive = 0
+		self.chosen_item = 0
+		self.items = model.game_state['inventory']
 
 	def add_hero(self):
 		hero = Hero('fighter', 10)
@@ -194,6 +196,28 @@ class Dungeon(Scene):
 	def isfree(self, pos):
 		return self.field[pos[1]][pos[0]] == '.' and pos not in [x.pos for x in self.heroes]
 
+	def use_item(self, item):
+		pos = self.divel_pos
+		e = None
+		if pos in self.enemies:
+			e = self.enemies[pos]
+
+		pots = {'Potion' : 5, 'Mega Potion' : 100, 'Super Mega Potion' : 500}
+		if item.name in pots:
+			if e == None:
+				return
+			e.hp = max(e.hp + pots[item.name], e.maxhp)
+			self.items[self.chosen_item].quantity -= 1
+			if self.items[self.chosen_item].quantity == 0:
+				del self.items[self.chosen_item]
+				if len(self.items) > 0:
+					self.chosen_item %= len(self.items)
+				else:
+					self.chosen_item = 0
+			self.console_messages.append({'msg' : 'Used ' + item.name + ' on ' + e.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
+
+
+
 	def update(self, events, time_passed):
 		update_now = False
 		for event in events:
@@ -207,9 +231,22 @@ class Dungeon(Scene):
 
 			if event.type == pygame.KEYDOWN:
 				if event.key  in move_map:
-					new_pos = move_map[event.key]
-					if self.isfree(new_pos):
-						self.divel_pos = new_pos
+					mods = pygame.key.get_mods() # an integer representing the
+					if mods & (pygame.KMOD_CTRL): # pressed modifier keys (shift, alt, ctrl...)
+						if event.key == pygame.K_UP:
+							self.chosen_item -= 1
+						if event.key == pygame.K_DOWN:	
+							self.chosen_item += 1	
+						l = len(self.items)
+						if l > 0:
+							self.chosen_item += l
+							self.chosen_item %= l
+					else:
+						new_pos = move_map[event.key]
+						if self.isfree(new_pos):
+							self.divel_pos = new_pos
+				if event.key == pygame.K_RETURN:
+					self.use_item(self.items[self.chosen_item])
 				if event.unicode in ['d', 'D']:
 					if self.divel_pos in self.enemies:
 						rem = self.enemies[self.divel_pos]
