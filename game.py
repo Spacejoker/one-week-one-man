@@ -40,8 +40,6 @@ class Enemy():
 		for e in enemy_data:
 			if e['minlvl'] <= level and e['maxlvl'] >= level:
 				cands.append(e)
-		print level
-		print cands
 		random.shuffle(cands)
 		enemy = cands[0]
 		self.img = load_image(MISC, 'enemy_' + enemy['name'])
@@ -54,8 +52,7 @@ class Enemy():
 		dmgb = randrange(level*enemy['attack'], level*pow(enemy['attack'], 2))
 		self.mindmg = min(dmga, dmgb)
 		self.maxdmg = max(dmga, dmgb) + 1
-		print level*enemy['attack'], " ---- ",  level*pow(enemy['attack'], 2)
-		print 'min', self.mindmg,  ', max:', self.maxdmg
+
 		self.name = enemy['name']
 
 	def roll_dmg(self):

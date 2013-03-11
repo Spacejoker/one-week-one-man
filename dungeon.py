@@ -260,7 +260,7 @@ class Dungeon(Scene):
 
 				self.console_messages.append(h.name + " continues exploring the dungeon")
 			#self.hero_pos = min(self.hero_pos + 1, len(self.path) -2)
-			if random.random() > 0.95 and self.spawn not in [x.pos in self.heroes]:
+			if random.random() > 0.95 and self.spawn not in [x.pos in self.heroes] and len(self.heroes) <= 4:
 				self.add_hero()
 
 		state = self.model.game_state
