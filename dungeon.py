@@ -97,14 +97,6 @@ class PostDungeon(Scene):
 		#self.gained_gold = model.game_state['gained_gold']
 		#model.game_state['gold']  = model.game_state['gold']  + self.gained_gold
 		s = model.game_state
-		for item in model.game_state['loot']:
-			if item.name == 'gold':
-				s['gold'] += item.quantity
-			else:
-				if item.name in s:
-					s[item.name] += item.quantity
-				else:
-					s[item.name] = item.quantity
 
 			
 
@@ -159,6 +151,7 @@ class Dungeon(Scene):
 		self.chosen_inactive = 0
 		self.chosen_item = 0
 		self.items = model.game_state['inventory']
+		self.bet = 10
 
 	def add_hero(self):
 		hero = Hero('fighter', 10)
@@ -268,6 +261,27 @@ class Dungeon(Scene):
 						del im[self.chosen_inactive]
 						self.inactive_minions = im
 						self.enemies[pos] = e
+				if event.unicode == '+':
+					val = 1
+					while val <= self.bet:
+						val *= 1.8
+					val = int(val)
+					#add treasure
+					curg = self.model.game_state['gold']
+					cando = min(val, curg)
+					self.model.game_state['gold'] -= cando
+					self.bet += cando
+				if event.unicode == '-':
+					if self.bet > 0:
+						val = 1
+						while val * 1.8 < self.bet:
+							val *= 1.8
+						val = int(val)
+						#add treasure
+						curg = self.model.game_state['gold']
+						cando = val
+						self.model.game_state['gold'] += cando
+						self.bet -= cando
 
 				l = len(self.inactive_minions)
 				if l > 0:
@@ -282,6 +296,10 @@ class Dungeon(Scene):
 
 			self.heroes = [x for x in self.heroes if x.hp > 0]
 			for h in self.heroes:
+				if h.pos == self.treasure_pos:
+					self.model.new_scene = 'post_dungeon'
+					self.model.success = False
+					return
 				dirs = [(1,0), (-1,0), (0,1), (0,-1)]
 				fight = False
 				for d in dirs:
@@ -298,7 +316,7 @@ class Dungeon(Scene):
 					queue = deque()
 					queue.append(h.pos)
 					visited.append(h.pos)
-					target = (1,1)
+					target = self.treasure_pos
 					while len(queue) > 0:
 						pop = queue.popleft()
 						if pop == target:

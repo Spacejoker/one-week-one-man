@@ -126,23 +126,10 @@ class Graphics():
 
 	def draw_post(self, scene, model):
 		self.screen.blit(scene.bg, (0,0))
-		if scene.model.hero.hp < 0:
-			self.draw_text("The hero " + model.hero.name  + " was defeated!", (50, 50))
-			x = 50
-			y = 100
-			if len(model.game_state['loot']) == 0:
-				self.draw_text("No loot! You minions must have stolen it.", (x, y), small = True)
-			else:
-				self.draw_text("The following was found on his/her corpse:", (x, y), small = True)
-
-			y += 50
-			x += 10
-
-			for item in model.game_state['loot']:
-				self.draw_text(str(item.quantity) + " "+ item.name, (x, y), small = True)
-				y += 50
+		if scene.model.success:
+			self.draw_text("Win! Show some xp", (50, 50))
 		else:
-			self.draw_text("Divel was defeated, your treasure is lost!", (50, 50))
+			self.draw_text("The treasure was lost!", (50, 50))
 
 	def draw_choose(self, scene, model):
 		self.screen.blit(scene.bg, (0,0))
@@ -191,6 +178,8 @@ class Graphics():
 		self.draw_text('Boss Level: ' + str( model.game_state['level']), (897, 35), small = True)
 		self.draw_text('Gold: ' + str( model.game_state['gold'] ) , (897, 60), small = True)
 		self.draw_text('Hp: ' + str( model.game_state['hp'] )  + ' / ' + str( model.game_state['max_hp'] ), (897, 85), small = True)
+		if hasattr(scene, 'bet'):
+			self.draw_text('Current chest gold: ' + str(scene.bet), (897, 110), small = True)
 
 	def draw_hero_stats(self, scene, model):
 		self.screen.blit(scene.character_bg, (870, 185))
