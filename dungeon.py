@@ -123,6 +123,7 @@ class Dungeon(Scene):
 		self.character_bg = load_image(MISC, 'character')
 		self.name = 'dungeon'
 		self.bg = pygame.image.load(os.path.join(BGS,'dungeon.png'))
+		self.treasure = load_image(MISC, 'treasure')
 		self.path_img = load_image(MISC, 'path')
 		self.field = [
 			 '##################',
@@ -150,6 +151,7 @@ class Dungeon(Scene):
 		self.choice = 0
 		self.old_msg = []
 		self.pos = (1,1)	
+		self.treasure_pos = (1,1)
 		self.divel = load_image(MISC, 'enemy_boss')
 		self.console_messages = []
 		self.show_minions = False

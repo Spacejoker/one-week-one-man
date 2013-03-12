@@ -67,6 +67,8 @@ class Graphics():
 				scrpos = (x0 + x*xsize, y0 + y*ysize)
 				if scene.field[y][x] == '.':
 					screen.blit(scene.path_img, scrpos)
+		
+		screen.blit(scene.treasure, (scene.treasure_pos[0]*xsize + x0, y0 + scene.treasure_pos[1]*ysize)) 
 
 		for key in scene.enemies:
 			x = x0 + key[0]*xsize
@@ -112,6 +114,7 @@ class Graphics():
 			item = scene.items[id % len(scene.items)]
 			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small = True, color = (15, 15,15))
 			y += 30
+
 
 
 	def draw_text(self, text, position, small = False, color = (250, 250, 250)):
