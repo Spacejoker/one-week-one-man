@@ -243,6 +243,11 @@ class Dungeon(Scene):
 						if l > 0:
 							self.chosen_item += l
 							self.chosen_item %= l
+					elif mods & (pygame.KMOD_SHIFT):
+						if event.key == pygame.K_DOWN:
+							self.chosen_inactive -= 1
+						if event.key == pygame.K_UP:
+							self.chosen_inactive += 1
 					else:
 						new_pos = move_map[event.key]
 						if self.isfree(new_pos):
@@ -263,10 +268,6 @@ class Dungeon(Scene):
 						del im[self.chosen_inactive]
 						self.inactive_minions = im
 						self.enemies[pos] = e
-				if event.unicode in ['o', 'O'] and self.isfree(self.divel_pos):
-					self.chosen_inactive -= 1
-				if event.unicode in ['p', 'P'] and self.isfree(self.divel_pos):
-					self.chosen_inactive += 1
 
 				l = len(self.inactive_minions)
 				if l > 0:
