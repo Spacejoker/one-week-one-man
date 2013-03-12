@@ -107,14 +107,23 @@ class Graphics():
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
 		screen.blit(scene.divel, (x0 + xsize*scene.divel_pos[0], y0 + ysize*scene.divel_pos[1]))
-
+		
+		opts = [item.name + ' (' + str(item.quantity) + ')' for item in scene.items]
 		x = 700
 		y = 526
-		for id in range(scene.chosen_item, scene.chosen_item + min(len(scene.items), 5)):
-			item = scene.items[id % len(scene.items)]
-			self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small = True, color = (15, 15,15))
-			y += 30
+		self.draw_choosing(scene.chosen_item, opts, x, y)
+		#for id in range(scene.chosen_item, scene.chosen_item + min(len(scene.items), 5)):
+			#item = scene.items[id % len(scene.items)]
+			#self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small = True, color = (15, 15,15))
+			#y += 30
 
+	def draw_choosing(self, chosen, options, x0, y0, num=5):
+		x = x0
+		y = y0
+		for id in range(chosen, scene.chosen + min(len(options), 5)):
+			item = options[id % len(options)]
+			self.draw_text(item, (x,y), small = True, color = (15, 15,15))
+			y += 30
 
 
 	def draw_text(self, text, position, small = False, color = (250, 250, 250)):

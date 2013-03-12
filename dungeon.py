@@ -245,6 +245,7 @@ class Dungeon(Scene):
 						new_pos = move_map[event.key]
 						if self.isfree(new_pos):
 							self.divel_pos = new_pos
+
 				if event.key == pygame.K_RETURN:
 					self.use_item(self.items[self.chosen_item])
 				if event.unicode in ['d', 'D']:

@@ -13,7 +13,8 @@ scenes = {'main_menu' : MainMenu,
 		'town' : Town,
 		'start_dungeon' : Dungeon,
 		'choose_dungeon' : ChooseDungeon,
-		'post_dungeon' : PostDungeon
+		'post_dungeon' : PostDungeon,
+		'train' : TrainingGround
 		}
 
 pygame.mixer.init()
