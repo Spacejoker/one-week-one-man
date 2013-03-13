@@ -2,7 +2,7 @@ from menu import Scene
 from cutscene import MISC, BGS, SOUND, CHARACTERS
 import pygame
 import os, sys
-from constants import PLAY_SOUND, load_animation, Animation, load_image
+from constants import PLAY_SOUND, load_animation, Animation, load_image, Item
 import random
 from random import randrange
 from namegen import NameGen
@@ -15,17 +15,11 @@ class GameData():
 			'level' : 1,
 			'upgrades' : [],
 			'gold' : 100,
-			'inventory' : [Loot('Potion', 5), 
-				Loot('Mega Potion', 1),
-				Loot('Mega Potion', 1),
-				Loot('Mega Potion', 1),
-				Loot('Mega Potion', 1),
-				Loot('Super Mega Potion', 1),
-				Loot('Mega Potion', 1),
-				],
+			'inventory' : [{'name' : Item.POTION, 'qty' : 10}],
 			'hp' : 100,
 			'max_hp' : 100,
-			'defense' : 10}
+			'defense' : 10,
+			'upgrades' : []}
 	
 enemy_data = [
 		{'name' : 'rabbit', 'minlvl' : 1, 'maxlvl' : 20, 'def' : 5, 'attack' : 2, 'hp' : 2, 'loot' : [

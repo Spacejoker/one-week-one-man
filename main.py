@@ -7,6 +7,7 @@ from menu import MainMenu
 from cutscene import RunIntro
 from game import Town, Enemy
 from dungeon import ChooseDungeon, PostDungeon, Dungeon
+from training import TrainingGround
 
 scenes = {'main_menu' : MainMenu,
 		'run_intro' : RunIntro,

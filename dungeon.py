@@ -191,25 +191,27 @@ class Dungeon(Scene):
 	def isfree(self, pos):
 		return self.field[pos[1]][pos[0]] == '.' and pos not in [x.pos for x in self.heroes]
 
-	def use_item(self, item):
+	def use_item(self):
 		pos = self.divel_pos
 		e = None
 		if pos in self.enemies:
 			e = self.enemies[pos]
 
 		pots = {'Potion' : 5, 'Mega Potion' : 100, 'Super Mega Potion' : 500}
-		if item.name in pots:
+		item = self.items[self.chosen_item]
+		if item['name'] in pots:
 			if e == None:
 				return
-			e.hp = max(e.hp + pots[item.name], e.maxhp)
-			self.items[self.chosen_item].quantity -= 1
-			if self.items[self.chosen_item].quantity == 0:
+			e.hp = max(e.hp + pots[item['name']], e.maxhp)
+			item['qty'] -= 1
+			self.items[self.chosen_item] = item
+			if self.items[self.chosen_item]['qty'] == 0:
 				del self.items[self.chosen_item]
 				if len(self.items) > 0:
 					self.chosen_item %= len(self.items)
 				else:
 					self.chosen_item = 0
-			self.console_messages.append({'msg' : 'Used ' + item.name + ' on ' + e.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
+			self.console_messages.append({'msg' : 'Used ' + item['name'] + ' on ' + e.name, 'time' : pygame.time.get_ticks(), 'type' : 'event'})
 
 
 
@@ -247,7 +249,8 @@ class Dungeon(Scene):
 							self.divel_pos = new_pos
 
 				if event.key == pygame.K_RETURN:
-					self.use_item(self.items[self.chosen_item])
+					if len(self.items) > 0:
+						self.use_item()
 				if event.unicode in ['d', 'D']:
 					if self.divel_pos in self.enemies:
 						rem = self.enemies[self.divel_pos]

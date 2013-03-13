@@ -5,6 +5,18 @@ import os, sys
 WIDTH = 1280
 HEIGHT = 720
 PLAY_SOUND = False
+
+class Item():
+	DIG = 'Pay diggers'
+	DIG_M = 'Pay diggers'
+	DIG_L = 'Pay diggers'
+	DIG_XL = 'Pay diggers'
+	DIG_XXL = 'Pay diggers'
+	STR_BUFF_S = 'Small strength buff'
+	POTION = 'Potion'
+	MEGA_POTION = 'Mega Potion'
+	SUPER_MEGA_POTION = 'Super Mega Potion'
+
 def load_image(directory, image):
 	return pygame.image.load(os.path.join(directory, image + '.png'))
 

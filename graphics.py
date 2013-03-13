@@ -13,7 +13,8 @@ class Graphics():
 				'town' : self.draw_town,
 				'dungeon' : self.draw_dungeon,
 				'choose':  self.draw_choose,
-				'post' : self.draw_post
+				'post' : self.draw_post,
+				'training' : self.draw_training,
 				}
 
 	def paint(self, scene, model):
@@ -107,23 +108,16 @@ class Graphics():
 		self.draw_stats(scene, model)
 		self.draw_hero_stats(scene, model)
 		screen.blit(scene.divel, (x0 + xsize*scene.divel_pos[0], y0 + ysize*scene.divel_pos[1]))
-		
-		opts = [item.name + ' (' + str(item.quantity) + ')' for item in scene.items]
+	
+		opts = [item['name'] + ' (' + str(item['qty']) + ')' for item in scene.items]
 		x = 700
 		y = 526
-		self.draw_choosing(scene.chosen_item, opts, x, y)
+		self.draw_scroll_menu(scene.chosen_item, opts, x, y)
 		#for id in range(scene.chosen_item, scene.chosen_item + min(len(scene.items), 5)):
 			#item = scene.items[id % len(scene.items)]
 			#self.draw_text(item.name + ' (' + str(item.quantity) + ')', (x,y), small = True, color = (15, 15,15))
 			#y += 30
 
-	def draw_choosing(self, chosen, options, x0, y0, num=5):
-		x = x0
-		y = y0
-		for id in range(chosen, scene.chosen + min(len(options), 5)):
-			item = options[id % len(options)]
-			self.draw_text(item, (x,y), small = True, color = (15, 15,15))
-			y += 30
 
 
 	def draw_text(self, text, position, small = False, color = (250, 250, 250)):
@@ -198,3 +192,17 @@ class Graphics():
 		self.screen.blit(e.img, (900, 210))
 
 		self.draw_text(e.name + ', level ' + str(e.level) , (897, 270), small = True)
+
+	def draw_training(self, scene, model):
+		self.screen.blit(scene.bg, (0,0))
+		x0 = 107
+		y0 = 170
+		self.draw_scroll_menu(scene.chosen_option, [o['name'] + " " + str( o['price'] ) + " gold" for o in scene.options], x0, y0, num=15)
+
+	def draw_scroll_menu(self, chosen, options, x0, y0, num=5):
+		x = x0
+		y = y0
+		for id in range(chosen, chosen + min(len(options), num)):
+			item = options[id % len(options)]
+			self.draw_text(item, (x,y), small = True, color = (15, 15,15))
+			y += 30
