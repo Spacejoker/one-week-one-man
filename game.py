@@ -154,7 +154,7 @@ class Town(Scene):
 		pass
 	
 	def start_dungeon(self):
-		self.model.new_scene = 'start_dungeon'
+		self.model.new_scene = 'platform'
 
 	def shop(self):
 		self.model.new_scene = 'shop'

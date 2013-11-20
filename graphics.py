@@ -15,6 +15,7 @@ class Graphics():
 				'choose':  self.draw_choose,
 				'post' : self.draw_post,
 				'training' : self.draw_training,
+				'platform' : self.draw_platform,
 				}
 
 	def paint(self, scene, model):
@@ -37,7 +38,24 @@ class Graphics():
 			y += 50
 
 		self.screen.blit(scene.menu_choice.get_frame(), (x-70, y0 - 10 + scene.choice*50))
-	
+
+	def draw_platform(self, scene, model):
+		x0, y0 = scene.playerpos
+		sz = scene.tilesize
+		startpos = (x0/sz, y0/sz)
+		xmod = x0 % sz
+		ymod = y0 % sz
+		print startpos
+		print 'render pos', (ymod)
+		w = WIDTH/sz + 2
+		h = HEIGHT/sz + 2
+		for y in range(-1, h):
+			for x in range(-1, + w):
+				tilenr = scene.get_tile_at((x - startpos[0],y-startpos[1]))
+				img = scene.tiles[tilenr]
+				self.screen.blit(img, (x*sz + xmod, y*sz + ymod))#((x-startpos[0])*sz + xmod, (y-startpos[1])*sz + ymod))
+		pass
+
 	def draw_town(self, scene, model):
 		
 		font = self.font

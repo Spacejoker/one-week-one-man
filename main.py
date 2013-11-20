@@ -8,6 +8,7 @@ from cutscene import RunIntro
 from game import Town, Enemy
 from dungeon import ChooseDungeon, PostDungeon, Dungeon
 from training import TrainingGround
+from platform import Platform
 
 scenes = {'main_menu' : MainMenu,
 		'run_intro' : RunIntro,
@@ -15,7 +16,8 @@ scenes = {'main_menu' : MainMenu,
 		'start_dungeon' : Dungeon,
 		'choose_dungeon' : ChooseDungeon,
 		'post_dungeon' : PostDungeon,
-		'train' : TrainingGround
+		'train' : TrainingGround,
+		'platform' : Platform
 		}
 
 pygame.mixer.init()
@@ -40,8 +42,6 @@ def loop():
 			#give the scene a handle to the mixer
 			scene = clazz(model)
 
-
-
 		events = pygame.event.get()
 		keymap = {}
 		for event in events:
@@ -53,6 +53,7 @@ def loop():
 		t = time.time()
 
 		if time.time() - last_paint > 1/30.0 or model.wait:
+			print 'fps: ', 1.0/(time.time() - last_paint)
 			last_paint = time.time()
 			g.paint(scene, model)
 
