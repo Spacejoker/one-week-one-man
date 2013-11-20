@@ -53,7 +53,7 @@ def loop():
 		t = time.time()
 
 		if time.time() - last_paint > 1/30.0 or model.wait:
-			print 'fps: ', 1.0/(time.time() - last_paint)
+			#print 'fps: ', 1.0/(time.time() - last_paint)
 			last_paint = time.time()
 			g.paint(scene, model)
 

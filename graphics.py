@@ -45,16 +45,19 @@ class Graphics():
 		startpos = (x0/sz, y0/sz)
 		xmod = x0 % sz
 		ymod = y0 % sz
-		print startpos
-		print 'render pos', (ymod)
 		w = WIDTH/sz + 2
 		h = HEIGHT/sz + 2
+		
+
 		for y in range(-1, h):
 			for x in range(-1, + w):
 				tilenr = scene.get_tile_at((x - startpos[0],y-startpos[1]))
 				img = scene.tiles[tilenr]
 				self.screen.blit(img, (x*sz + xmod, y*sz + ymod))#((x-startpos[0])*sz + xmod, (y-startpos[1])*sz + ymod))
-		pass
+				
+		if scene.clickpos != None:
+			clicktarget = (scene.clickpos[0] + x0, scene.clickpos[1] + y0)
+			self.screen.blit(scene.tiles[12], map(sum, zip(clicktarget,(-sz/2, -sz/2))))
 
 	def draw_town(self, scene, model):
 		
