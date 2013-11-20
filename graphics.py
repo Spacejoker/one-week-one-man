@@ -40,7 +40,7 @@ class Graphics():
 		self.screen.blit(scene.menu_choice.get_frame(), (x-70, y0 - 10 + scene.choice*50))
 
 	def draw_platform(self, scene, model):
-		x0, y0 = scene.playerpos
+		x0, y0 = scene.get_map_pos()
 		sz = scene.tilesize
 		startpos = (x0/sz, y0/sz)
 		xmod = x0 % sz
