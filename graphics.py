@@ -40,7 +40,7 @@ class Graphics():
 		self.screen.blit(scene.menu_choice.get_frame(), (x-70, y0 - 10 + scene.choice*50))
 
 	def draw_platform(self, scene, model):
-		x0, y0 = scene.get_map_pos()
+		x0, y0 = scene.get_map_pos()#wrong sign!, render something at x,y on x+x0, y+y0
 		sz = scene.tilesize
 		startpos = (x0/sz, y0/sz)
 		xmod = x0 % sz
@@ -58,6 +58,10 @@ class Graphics():
 		if scene.clickpos != None:
 			clicktarget = (scene.clickpos[0] + x0, scene.clickpos[1] + y0)
 			self.screen.blit(scene.tiles[12], map(sum, zip(clicktarget,(-sz/2, -sz/2))))
+
+		#draw crew
+		c = scene.crew.leader
+		self.screen.blit(c.image, (x0 + c.x, y0 + c.y))
 
 	def draw_town(self, scene, model):
 		
